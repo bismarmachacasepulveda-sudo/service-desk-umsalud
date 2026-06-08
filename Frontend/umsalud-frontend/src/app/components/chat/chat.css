@@ -1,0 +1,29 @@
+.chat-box {
+    height: 400px; /* Altura fija para el chat */
+    overflow-y: auto; /* Scroll vertical */
+    display: flex;
+    flex-direction: column;
+}
+
+.msg-bubble {
+    max-width: 100%;
+    padding: 10px 15px;
+    border-radius: 25px;
+    position: relative;
+    font-size: 0.95rem;
+}
+
+/* Estilo para MIS mensajes (Derecha) */
+.my-msg {
+    border-bottom-right-radius: 2px; /* Esquina recta */
+}
+
+/* Estilo para OTROS mensajes (Izquierda) */
+.other-msg {
+    border-bottom-left-radius: 2px; /* Esquina recta */
+    border: 1px solid #edeeef;
+}
+
+.msg-time {
+    font-size: 0.7rem;
+}

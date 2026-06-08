@@ -1,0 +1,87 @@
+/* Contenedor relativo para poder posicionar el badge */
+.notification-container {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    margin-right: 15px; /* Un poco de aire */
+    background-color: #033160;
+    border: 2px solid #033160;
+}
+
+/* Estilo base del ícono */
+.bell-icon {
+    font-size: 1.6rem; /* Hacemos la campana un poco más grande */
+    color: #555; /* Un gris elegante o usa 'white' si tu fondo es oscuro */
+    transition: color 0.3s ease;
+}
+
+.bell-icon:hover {
+    color: #0d6efd; /* Cambia de color al pasar el mouse (azul bootstrap) */
+}
+
+/* --- ANIMACIÓN DE CAMPANA --- */
+@keyframes swing {
+    0% { transform: rotate(0deg); }
+    10% { transform: rotate(10deg); }
+    30% { transform: rotate(-10deg); }
+    50% { transform: rotate(5deg); }
+    70% { transform: rotate(-5deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Esta clase se aplicará solo cuando haya notificaciones */
+.ringing {
+    animation: swing 2s ease-in-out infinite;
+    transform-origin: top center;
+    color: #0da1fd; /* Opcional: ponerla azul si suena */
+}
+
+/* --- CONTADOR FLOTANTE (BADGE) --- */
+.badge-float {
+    position: absolute;
+    top: -5px;    /* Sube el número */
+    right: -5px;  /* Lo mueve a la derecha */
+    padding: 3px 6px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    border: 2px solid white; /* Borde blanco para separarlo de la campana */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2); /* Sombrita para profundidad */
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    100% { transform: scale(1); }
+}
+
+/* ... tus estilos anteriores ... */
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+/* Avatar circular para el chat */
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+}
+
+/* Para que el texto largo no rompa el diseño (puntos suspensivos...) */
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px; /* Ajusta según el ancho de tu dropdown */
+}
+
+/* Diferenciar las no leídas */
+.bg-light {
+    background-color: #f0f2f5 !important; /* Un gris muy suavecito, estilo Facebook */
+}

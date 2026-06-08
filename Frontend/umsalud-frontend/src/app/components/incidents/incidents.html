@@ -1,0 +1,57 @@
+<div class="container mt-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Incidencias</h2>
+    <button class="btn btn-primary">+ Nuevo Reporte</button>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!isLoading && incidents.length === 0" class="alert alert-info">
+    No hay incidencias registradas.
+  </div>
+
+  <div class="table-responsive shadow-sm" *ngIf="!isLoading && incidents.length > 0">
+    <table class="table table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Título</th>
+          <th>Estado</th>
+          <th>Prioridad</th>
+          <th>Solicitante</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ticket of incidents">
+          <td>#{{ ticket.id }}</td>
+          <td>
+            <strong>{{ ticket.title }}</strong><br>
+            <small class="text-muted">{{ ticket.created_at | date:'short' }}</small>
+          </td>
+          <td>
+            <span class="badge" 
+                  [ngClass]="ticket.status === 'abierto' ? 'bg-info' : (ticket.status === 'cerrado' ? 'bg-secondary' : 'bg-primary')">
+              {{ ticket.status | uppercase }}
+            </span>
+          </td>
+          <td>
+            <span [class]="getPriorityClass(ticket.priority)">
+              {{ ticket.priority | uppercase }}
+            </span>
+          </td>
+          <td>
+            {{ ticket.requester?.name || 'N/A' }}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-secondary">Ver Detalle</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

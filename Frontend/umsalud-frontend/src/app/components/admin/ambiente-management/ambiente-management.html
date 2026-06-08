@@ -1,0 +1,219 @@
+<div class="container mt-4 mb-5 pb-5 animate__animated animate__fadeIn">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-sm border-bottom border-3" style="border-bottom-color: #003366 !important;">
+    <div>
+        <h3 class="fw-bold mb-1" style="color: #003366;">
+            <i class="bi bi-building-fill me-2"></i>
+            <span *ngIf="!isAdmin">Reserva de Espacios</span>
+            <span *ngIf="isAdmin">Gestión de Ambientes</span>
+        </h3>
+        <p class="text-muted mb-0 small">
+            Control de disponibilidad y administración de ambientes
+        </p>
+    </div>
+
+</div>
+
+    <div *ngIf="successMessage" class="alert alert-success border-0 shadow-sm rounded-4 animate__animated animate__flipInX">
+        <i class="bi bi-check-all fs-5 me-2"></i> {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger border-0 shadow-sm rounded-4 animate__animated animate__shakeX">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-4" *ngIf="isAdmin">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header text-white py-3 " [ngClass]="isEditing ? 'bg-warning' : 'bg-navy'">
+                    <h5 class="fw-bold" [ngClass]="isEditing ? 'text-white' : 'text-white'">
+                        <i class="bi" [ngClass]="isEditing ? 'bi-pencil-square' : 'bi-plus-circle-fill'"></i>
+                        {{ isEditing ? ' Editar Ambiente' : ' Nuevo Ambiente' }}
+                    </h5>
+                   
+                </div>
+                
+                <div class="card-body pt-2">
+                    <form (ngSubmit)="save()">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nombre del Espacio</label>
+                            <div class="input-group input-group-merge">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-door-open"></i></span>
+                                <input type="text" class="form-control bg-light border-0" [(ngModel)]="formModel.nombre" name="nombre" required placeholder="Ej: Aula 101" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Clasificación</label>
+                                
+                                <div class="input-group" *ngIf="['Aula', 'Auditorio', 'Laboratorio', 'Sala'].includes(formModel.tipo)">
+                                    <select class="form-select bg-light border-0" [(ngModel)]="formModel.tipo" name="tipo">
+                                    <option value="Aula">📖 Aula</option>
+                                    <option value="Auditorio">📣 Auditorio</option>
+                                    <option value="Laboratorio">🔬 Laboratorio</option>
+                                    <option value="Sala">👥 Sala de Reunión</option>
+                                    </select>
+                                    <button class="btn btn-outline-primary border-0 bg-light" type="button" (click)="formModel.tipo = ''" title="Escribir otro">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </div>
+
+                                <div class="input-group animate__animated animate__fadeIn" *ngIf="!['Aula', 'Auditorio', 'Laboratorio', 'Sala'].includes(formModel.tipo)">
+                                    <input type="text" class="form-control bg-light border-0" [(ngModel)]="formModel.tipo" name="tipoCustom" placeholder="¿Qué tipo es?" autofocus>
+                                    <button class="btn btn-outline-danger border-0 bg-light" type="button" (click)="formModel.tipo = 'Aula'" title="Volver a lista">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-muted text-uppercase">Capacidad</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0"><i class="bi bi-people"></i></span>
+                                    <input type="number" class="form-control bg-light border-0" [(ngModel)]="formModel.capacidad" name="capacidad" min="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Ubicación Física</label>
+                            <input type="text" class="form-control bg-light border-0" [(ngModel)]="formModel.ubicacion" name="ubicacion" placeholder="Ej: Piso 2, Bloque B">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Equipamiento / Notas</label>
+                            <textarea class="form-control bg-light border-0" rows="2" [(ngModel)]="formModel.descripcion" name="descripcion" placeholder="Ej: Proyector, Pizarra acrílica..."></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Estado</label>
+                            <div class="mb-4">
+                             <select class="form-select border-0 fw-bold" [ngClass]="formModel.estado === 'activo' ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis'" [(ngModel)]="formModel.estado" name="estado">
+                                 <option value="activo">✅ Disponible / Activo</option>
+                                 <option value="mantenimiento">🛠️ En Mantenimiento</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn py-3 fw-bold shadow-sm rounded-3" 
+                                    [ngClass]="isEditing ? 'btn-warning text-white' : 'btn-primary'" 
+                                    [disabled]="isProcessing || !formModel.nombre">
+                                <span *ngIf="isProcessing" class="spinner-border spinner-border-sm me-2"></span>
+                                {{ isEditing ? 'GUARDAR CAMBIOS' : 'REGISTRAR AMBIENTE' }}
+                            </button>
+                            <button type="button" *ngIf="isEditing" class="btn btn-light text-muted fw-bold" (click)="resetForm()">
+                                CANCELAR EDICIÓN
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div [ngClass]="isAdmin ? 'col-lg-8' : 'col-12'">
+            <div class="card border-0 shadow-lg rounded-5 overflow-hidden">
+                <div class="card-header bg-white py-4 px-4 border-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-dark">Lista de Ambientes</h5>
+                             <div class="d-none d-md-block">
+                             <span class="badge bg-white text-primary border px-3 py-2 rounded-pill shadow-sm">
+                              <i class="bi bi-info-circle me-2"></i> {{ ambientes.length }} Ambientes Registrados
+                         </span>
+                           </div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-4">Identificación</th>
+                                <th>Tipo</th>
+                                <th>Capacidad</th>
+                                <th>Estado</th>
+                                <th *ngIf="isAdmin" class="text-end pe-4">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of ambientes" class="transition-row">
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3 me-3">
+                                            <i class="bi fs-4" [ngClass]="{
+                                                'bi-easel2': item.tipo === 'Aula',
+                                                'bi-activity': item.tipo === 'Laboratorio',
+                                                'bi-megaphone': item.tipo === 'Auditorio',
+                                                'bi-people': item.tipo === 'Sala',
+                                                'bi-geo-alt': true
+                                            }"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark fs-6">{{ item.nombre }}</div>
+                                            <div class="small text-muted"><i class="bi bi-pin-map-fill me-1"></i> {{ item.ubicacion || 'General' }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                
+                                <td>
+                                    <span class="badge border border-info-subtle text-info-emphasis bg-info-subtle px-3 py-2 rounded-pill fw-medium">
+                                        {{ item.tipo }}
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="d-flex align-items-center text-dark">
+                                        <i class="bi bi-person-check-fill me-2 text-secondary"></i>
+                                        <span class="fw-bold">{{ item.capacidad }}</span>
+                                        <span class="ms-1 text-muted small">pers.</span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span *ngIf="item.estado === 'activo'" class="badge rounded-pill px-3 py-2 bg-success-subtle text-success">
+                                        <i class="bi bi-check-circle-fill me-1"></i> Disponible
+                                    </span>
+                                    <span *ngIf="item.estado === 'mantenimiento'" class="badge rounded-pill px-3 py-2 bg-warning-subtle text-warning-emphasis">
+                                        <i class="bi bi-cone-striped me-1"></i> Bloqueado
+                                    </span>
+                                </td>
+
+                                <td *ngIf="isAdmin" class="text-end pe-4">
+                                    <div class="btn-group shadow-sm rounded-3 overflow-hidden">
+                                        <button class="btn btn-white border-0 text-primary" (click)="startEdit(item)" title="Editar">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="btn btn-white border-0 text-danger" (click)="deleteAmbiente(item.id)" title="Mover a papelera">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr *ngIf="ambientes.length === 0 && !isLoading">
+                                <td colspan="5" class="text-center py-5">
+                                    <div class="opacity-20 mb-3">
+                                        <i class="bi bi-building-slash display-1"></i>
+                                    </div>
+                                    <h5 class="text-muted fw-bold">Sin espacios registrados</h5>
+                                    <p class="text-muted small">Comience agregando un aula o laboratorio en el panel izquierdo.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card-footer bg-light border-0 py-3 px-4" *ngIf="ambientes.length > 0">
+                    <div class="row align-items-center">
+                        <div class="col text-muted small">
+                            <i class="bi bi-shield-check me-1"></i> Solo personal autorizado puede modificar esta lista.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

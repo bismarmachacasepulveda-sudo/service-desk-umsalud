@@ -1,0 +1,100 @@
+<div class="container mt-4 animate__animated animate__fadeIn">
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb bg-light p-2 rounded shadow-sm">
+      <li class="breadcrumb-item">
+        <a routerLink="/dashboard" class="text-decoration-none text-primary">
+          <i class="bi bi-house-door-fill me-1"></i>Inicio
+        </a>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Mi Perfil</li>
+    </ol>
+  </nav>
+
+  <div class="d-flex align-items-center mb-4">
+    <button class="btn btn-outline-secondary btn-sm me-3 shadow-sm" routerLink="/dashboard">
+      <i class="bi bi-arrow-left"></i> Volver al Dashboard
+    </button>
+    <h2 class="fw-bold m-0" style="color: #003366;">Configuración de Usuario</h2>
+  </div>
+  
+  </div>
+<div class="container mt-5 animate__animated animate__fadeIn">
+  <div class="row justify-content-center">
+    
+    <div class="col-lg-8">
+      <h2 class="fw-bold mb-4" style="color: #003366;"><i class="bi bi-person-gear me-2"></i>Mi Configuración</h2>
+
+      <div *ngIf="mensajeExito" class="alert alert-success shadow-sm">{{ mensajeExito }}</div>
+      <div *ngIf="mensajeError" class="alert alert-danger shadow-sm">{{ mensajeError }}</div>
+
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-0">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-card-text me-2"></i>Información Personal</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="actualizarInformacion()">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Nombre Completo</label>
+                <input type="text" class="form-control" [(ngModel)]="perfil.name" name="name" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Correo Electrónico</label>
+                <input type="email" class="form-control" [(ngModel)]="perfil.email" name="email" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Teléfono / WhatsApp</label>
+                <input type="text" class="form-control" [(ngModel)]="perfil.phone" name="phone">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Cargo Actual</label>
+                <input type="text" class="form-control" [(ngModel)]="perfil.cargo" name="cargo">
+              </div>
+              
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Área Asignada</label>
+                <input type="text" class="form-control bg-light" [value]="perfil.area?.name || 'Sin Área'" readonly>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small text-muted fw-bold">Rol en el Sistema</label>
+                <input type="text" class="form-control bg-light" [value]="perfil.role | uppercase" readonly>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary px-4 fw-bold" [disabled]="cargando">
+              {{ cargando ? 'Guardando...' : 'Actualizar Información' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card shadow-sm border-0 border-top border-4 border-danger">
+        <div class="card-header bg-white py-3 border-0 text-danger">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-shield-lock me-2"></i>Seguridad de la Cuenta</h5>
+        </div>
+        <div class="card-body">
+          <form (ngSubmit)="actualizarContrasena()">
+            <div class="mb-3">
+              <label class="form-label small fw-bold">Contraseña Actual</label>
+              <input type="password" class="form-control" [(ngModel)]="seguridad.current_password" name="current_password" required>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold">Nueva Contraseña</label>
+                <input type="password" class="password-control form-control" [(ngModel)]="seguridad.password" name="password" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label small fw-bold">Confirmar Nueva Contraseña</label>
+                <input type="password" class="form-control" [(ngModel)]="seguridad.password_confirmation" name="password_confirmation" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-danger px-4 fw-bold" [disabled]="cargando">
+              Cambiar Contraseña
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

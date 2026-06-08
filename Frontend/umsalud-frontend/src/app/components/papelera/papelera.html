@@ -1,0 +1,231 @@
+<div class="container-fluid py-2 px-lg-5 bg-light min-vh-100">
+    
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-4 shadow-sm border-bottom border-4" style="border-color: #800000 !important;">
+        <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center justify-content-center rounded-circle me-3 shadow-sm" 
+                 style="width: 60px; height: 60px; background-color: rgba(128, 0, 0, 0.1);">
+                <i class="bi bi-trash3-fill fs-2" style="color: #800000;"></i>
+            </div>
+            <div>
+                <h2 class="fw-bold mb-0" style="color: #800000;">Centro de Recuperación</h2>
+                <p class="text-muted mb-0 small text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem;">
+                    <span style="color: #003366;">Red UMSALUD</span> • Integridad de Datos
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center mb-5 overflow-auto">
+        <div class="bg-white p-2 rounded-pill shadow-sm d-inline-flex border text-nowrap">
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+             [class.btn-primary]="tabActual === 'usuarios'" 
+             [class.btn-light]="tabActual !== 'usuarios'"
+             (click)="cambiarTab('usuarios')">
+             <i class="bi bi-people-fill me-2"></i> Usuarios
+            </button>
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center" 
+                    [class.btn-primary]="tabActual === 'tickets'" 
+                    [class.btn-light]="tabActual !== 'tickets'"
+                    (click)="cambiarTab('tickets')">
+                <i class="bi bi-ticket-perforated me-2"></i> Tickets
+            </button>
+            
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+                    [class.btn-primary]="tabActual === 'categorias'" 
+                    [class.btn-light]="tabActual !== 'categorias'"
+                    (click)="cambiarTab('categorias')">
+                <i class="bi bi-tags me-2"></i> Categorías
+            </button>
+            
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+                    [class.btn-primary]="tabActual === 'repositorio'" 
+                    [class.btn-light]="tabActual !== 'repositorio'"
+                    (click)="cambiarTab('repositorio')">
+                <i class="bi bi-folder2-open me-2"></i> Archivos
+            </button>
+
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+                    [class.btn-primary]="tabActual === 'areas'" 
+                    [class.btn-light]="tabActual !== 'areas'"
+                    (click)="cambiarTab('areas')">
+                <i class="bi bi-geo-alt me-2"></i> Áreas
+            </button>
+
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+                    [class.btn-primary]="tabActual === 'ambientes'" 
+                    [class.btn-light]="tabActual !== 'ambientes'"
+                    (click)="cambiarTab('ambientes')">
+                <i class="bi bi-building-fill me-2"></i> Ambientes
+            </button>
+
+            <button class="btn rounded-pill px-4 py-2 transition-all d-flex align-items-center ms-2" 
+                [class.btn-primary]="tabActual === 'reservas'" 
+                [class.btn-light]="tabActual !== 'reservas'"
+                (click)="cambiarTab('reservas')">
+            <i class="bi bi-calendar-event me-2"></i> Reservas
+            </button>
+        </div>
+    </div>
+
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden animate__animated animate__fadeInUp">
+        <div class="card-body p-0">
+            
+            <div *ngIf="cargando" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="text-muted mt-2 small">Recuperando datos...</p>
+            </div>
+
+            <div class="table-responsive" *ngIf="!cargando">
+                <table class="table table-hover align-middle mb-0 custom-table">
+                    <thead class="bg-dark text-white small text-uppercase fw-bold">
+                        <tr>
+                            <th class="ps-4 py-3">Registro</th> 
+                            <th class="py-3">Eliminado Por</th>
+                            <th class="py-3">Fecha de Eliminación</th>
+                            <th class="text-end pe-4 py-3">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of itemsBorrados" class="transition-row">
+                            
+                            <td class="ps-4 py-4">
+
+                       <div *ngIf="tabActual === 'usuarios'" class="d-flex align-items-center">
+    <div class="avatar-sm bg-dark text-white rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+        {{ item.name.charAt(0) }}
+    </div>
+    <div>
+        <div class="fw-bold text-dark fs-6">{{ item.name }}</div>
+        <div class="text-muted small">
+            <span class="badge border bg-light text-dark">{{ item.role | uppercase }}</span>
+            <span class="ms-2"><i class="bi bi-envelope me-1"></i>{{ item.email }}</span>
+        </div>
+    </div>
+</div>         
+                                
+                                <div *ngIf="tabActual === 'tickets'" class="d-flex align-items-center">
+                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-3 p-2 me-3 fw-bold">#{{ item.id }}</span>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">{{ item.subject }}</div>
+                                        <div class="text-muted small"><i class="bi bi-geo-alt-fill me-1"></i> {{ item.area?.name || 'N/A' }}</div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="tabActual === 'categorias'" class="d-flex align-items-center">
+                                    <div class="bg-warning bg-opacity-10 text-warning rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <i class="bi" [ngClass]="item.tipo === 'ticket' ? 'bi-ticket-detailed' : 'bi-folder'"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">{{ item.name }}</div>
+                                        <div class="text-muted small">
+                                            <span class="badge border text-dark bg-light">{{ item.tipo | uppercase }}</span>
+                                            <span *ngIf="item.visibilidad === 'tecnico'" class="ms-1 text-danger"><i class="bi bi-lock-fill"></i> Privado</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="tabActual === 'repositorio'" class="d-flex align-items-center">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-file-earmark-text fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">{{ item.nombre_original }}</div>
+                                        <div class="text-muted small d-flex gap-2">
+                                            <span>{{ item.peso_legible || '0 KB' }}</span>
+                                            <span class="border-start ps-2">{{ item.extension | uppercase }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="tabActual === 'areas'" class="d-flex align-items-center">
+                                    <div class="bg-info bg-opacity-10 text-info rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-geo-alt-fill fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">{{ item.name }}</div>
+                                        <div class="text-muted small text-truncate" style="max-width: 250px;">
+                                            {{ item.description || 'Sin descripción' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="tabActual === 'ambientes'" class="d-flex align-items-center">
+                                    <div class="bg-success bg-opacity-10 text-success rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+                                        <i class="bi" [ngClass]="{
+                                            'bi-easel': item.tipo === 'Aula',
+                                            'bi-megaphone': item.tipo === 'Auditorio',
+                                            'bi-flask': item.tipo === 'Laboratorio',
+                                            'bi-people': item.tipo === 'Sala',
+                                            'bi-building': true
+                                        }"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">{{ item.nombre }}</div>
+                                        <div class="text-muted small d-flex align-items-center gap-2">
+                                            <span class="badge border bg-light text-dark">{{ item.tipo }}</span>
+                                            <span><i class="bi bi-geo-alt me-1"></i>{{ item.ubicacion || 'Sin ubicación' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div *ngIf="tabActual === 'reservas'" class="d-flex align-items-center">
+        <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-2 me-3 d-flex justify-content-center align-items-center" style="width: 40px; height: 40px;">
+            <i class="bi bi-calendar-x fs-4"></i>
+        </div>
+        <div>
+            <div class="fw-bold text-dark fs-6">{{ item.ambiente?.nombre || 'Ambiente no definido' }}</div>
+            <div class="text-muted small">
+                <span class="text-primary fw-bold">{{ item.inicio | date:'dd/MM/yyyy' }}</span> | 
+                {{ item.inicio | date:'HH:mm' }} - {{ item.fin | date:'HH:mm' }}
+            </div>
+            <div class="text-muted italic small">Motivo: {{ item.motivo }}</div>
+        </div>
+    </div>
+
+                            </td>
+
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-secondary text-white rounded-circle me-2 d-flex align-items-center justify-content-center fw-bold" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        {{ (item.editor?.name?.charAt(0) || item.creator?.name?.charAt(0)) || '?' }}
+                                    </div>
+                                    <span class="text-dark fw-medium">{{ item.editor?.name || item.creator?.name || 'Sistema' }}</span>
+                                </div>
+                            </td>
+
+                            <td>
+                                <div class="text-dark fw-medium">{{ item.deleted_at | date:'dd MMM, yyyy' }}</div>
+                                <div class="text-muted small">{{ item.deleted_at | date:'h:mm a' }}</div>
+                            </td>
+
+                            <td class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-success rounded-pill px-3 py-1 btn-sm fw-bold d-flex align-items-center" 
+                                            (click)="restaurar(item.id)">
+                                        <i class="bi bi-arrow-counterclockwise me-1"></i> Restaurar
+                                    </button>
+                                    <button class="btn btn-outline-danger rounded-pill px-3 py-1 btn-sm fw-bold d-flex align-items-center" 
+                                            (click)="eliminarPermanente(item.id)">
+                                        <i class="bi bi-trash3 me-1"></i> Borrar
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr *ngIf="itemsBorrados.length === 0 && !cargando">
+                            <td colspan="4" class="text-center py-5">
+                                <div class="py-5">
+                                    <div class="display-1 text-muted opacity-25 mb-3">
+                                        <i class="bi bi-trash2"></i>
+                                    </div>
+                                    <h4 class="text-muted fw-bold">Papelera limpia</h4>
+                                    <p class="text-muted small">No hay registros de {{ tabActual }} eliminados.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,52 @@
+/* Paleta de Colores UMSALUD */
+:host {
+  --ums-azul-oscuro: #00326b; /* Azul profundo */
+  --ums-guindo: #d50000;      /* Guindo institucional */
+  --ums-guindo-light: #fdedec;
+  --ums-azul-light: #e8eaf6;
+}
+
+.text-primary-ums { color: var(--ums-azul-oscuro) !important; }
+.bg-primary-ums { background-color: var(--ums-azul-oscuro) !important; }
+.text-guindo { color: var(--ums-guindo) !important; }
+.bg-guindo { background-color: var(--ums-guindo) !important; }
+
+/* Refinamiento de Tabla */
+.table thead {
+  background-color: var(--ums-azul-oscuro);
+  color: white;
+}
+
+.avatar-circle {
+  background-color: var(--ums-azul-light);
+  color: var(--ums-azul-oscuro);
+  border: 1px solid rgba(26, 35, 126, 0.2);
+}
+
+/* Badge de eliminación usando el color Guindo */
+.badge-deleted {
+  background-color: var(--ums-guindo-light);
+  color: var(--ums-guindo);
+  border: 1px solid var(--ums-guindo);
+}
+
+/* Botones personalizados */
+.btn-ums {
+  background-color: var(--ums-azul-oscuro);
+  color: white;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.btn-ums:hover {
+  background-color: var(--ums-guindo);
+  color: white;
+  transform: translateY(-1px);
+}
+
+.ls-1 { letter-spacing: 1px; }
+
+.detail-container {
+  border-left: 5px solid var(--ums-guindo) !important;
+  background-color: #fafafa;
+}

@@ -1,0 +1,11 @@
+.btn-volver {
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.btn-volver:hover {
+    color: #003366 !important; /* El azul institucional que usas */
+    transform: translateX(-5px); /* Un pequeño salto hacia la izquierda */
+}

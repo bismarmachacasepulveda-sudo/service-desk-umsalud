@@ -1,0 +1,178 @@
+<div class="container mt-4 pb-5">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-lg border-bottom border-4" style="border-bottom-color: #003366 !important;">
+    <div>
+        <h3 class="fw-bold mb-1" style="color: #003366;">
+            <i class="bi bi-archive-fill me-2"></i>
+            
+            <span *ngIf="!puedeSubir">Repositorio</span>
+            
+            <span *ngIf="puedeSubir">Repositorio Técnico</span>
+        </h3>
+        <p class="text-muted mb-0 small">Base de conocimiento, manuales, drivers y herramientas institucionales.</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+         <button class="btn btn-outline-secondary btn-sm rounded-circle" (click)="cargarArchivos()" title="Actualizar lista">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+</div>
+
+    <div *ngIf="mensajeExito" class="alert alert-success py-2 shadow-sm animate__animated animate__fadeIn">
+        <i class="bi bi-check-circle me-2"></i> {{ mensajeExito }}
+    </div>
+    <div *ngIf="mensajeError" class="alert alert-danger py-2 shadow-sm animate__animated animate__shakeX">
+        <i class="bi bi-exclamation-triangle me-2"></i> {{ mensajeError }}
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control border-start-0 ps-0" 
+                       placeholder="Buscar por nombre o descripción..." 
+                       [(ngModel)]="textoBusqueda">
+            </div>
+        </div>
+        
+        <div class="col-md-8 overflow-auto pb-2">
+            <div class="d-flex gap-2 justify-content-md-end">
+                <button class="btn rounded-pill px-4 fw-bold transition-btn" 
+                        [ngClass]="filtroCategoriaId === null ? 'btn-navy shadow' : 'btn-light border text-muted'"
+                        (click)="filtroCategoriaId = null">
+                    Todo
+                </button>
+                <button *ngFor="let cat of categorias" 
+                        class="btn rounded-pill px-3 transition-btn text-nowrap"
+                        [ngClass]="filtroCategoriaId === cat.id ? 'btn-navy shadow' : 'btn-light border text-muted'"
+                        (click)="filtroCategoriaId = cat.id">
+                    {{ cat.name }}
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="puedeSubir" class="card border-0 shadow mb-5 bg-white rounded-4 overflow-hidden">
+        <div class="card-header bg-navy text-white py-3">
+            <h6 class="mb-0 fw-bold"><i class="bi bi-cloud-arrow-up-fill me-2"></i>Subir Nuevo Recurso</h6>
+        </div>
+        <div class="card-body p-4">
+            <div class="row g-4">
+                
+                <div class="col-md-4">
+                    <label class="small fw-bold text-muted text-uppercase mb-2">Archivo</label>
+                    <input type="file" id="fileInput" class="form-control" (change)="seleccionarArchivo($event)">
+                    <div class="form-text small"><i class="bi bi-info-circle"></i> Máximo 50MB por archivo.</div>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="small fw-bold text-muted text-uppercase mb-2">Categoría</label>
+                    <select class="form-select" [(ngModel)]="categoriaId">
+                        <option [ngValue]="null">Seleccionar...</option>
+                        <option *ngFor="let cat of categorias" [ngValue]="cat.id">{{ cat.name }}</option>
+                    </select>
+                </div>
+
+                <div class="col-md-5">
+                    <label class="small fw-bold text-muted text-uppercase mb-2">Visibilidad</label>
+                    <div class="d-flex gap-3">
+                        
+                        <div class="selector-card w-50 p-2 rounded-3 text-center" 
+                             [class.active-tecnico]="visibilidad === 'tecnico'"
+                             (click)="visibilidad = 'tecnico'">
+                            <i class="bi bi-shield-lock-fill fs-4 d-block mb-1"></i>
+                            <span class="fw-bold text-danger">Privado</span>
+                            <h6 class="form-text small"> Visible Para el personal de Soporte</h6>
+                        </div>
+
+                        <div class="selector-card w-50 p-2 rounded-3 text-center"
+                             [class.active-publico]="visibilidad === 'publico'"
+                             (click)="visibilidad = 'publico'">
+                            <i class="bi bi-globe fs-4 d-block mb-1"></i>
+                            <span class="fw-bold text-success">Público</span>
+                            <h6 class="form-text small"> Visible Para Todos</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12 d-flex align-items-end gap-3">
+                    <div class="flex-grow-1">
+                        <label class="small fw-bold text-muted text-uppercase mb-2">Descripción</label>
+                        <input type="text" class="form-control" [(ngModel)]="descripcion" placeholder="Describa el uso o detalles del archivo">
+                    </div>
+                    <button class="btn btn-navy px-4 py-2 fw-bold" 
+                            [disabled]="!archivoSeleccionado || !categoriaId || subiendo" 
+                            (click)="subir()">
+                        <span *ngIf="subiendo" class="spinner-border spinner-border-sm me-2"></span>
+                        {{ subiendo ? 'Subiendo...' : 'Publicar' }}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="cargando" class="text-center py-5 text-muted">
+        <div class="spinner-border text-navy" role="status"></div>
+        <p class="mt-2 small">Cargando repositorio...</p>
+    </div>
+
+    <div class="row g-3" *ngIf="!cargando">
+        <div class="col-6 col-md-4 col-lg-3 animate__animated animate__fadeIn" *ngFor="let archivo of archivosFiltrados">
+            <div class="card h-100 border-0 shadow-sm file-card position-relative rounded-4 overflow-hidden">
+                
+                <div *ngIf="esAdmin || esTecnico" class="position-absolute top-0 end-0 m-2 z-1">
+                    <span *ngIf="archivo.visibilidad === 'tecnico'" class="badge badge-tecnico shadow-sm">
+                        <i class="bi bi-shield-lock-fill"></i> PRIVADO
+                    </span>
+                    <span *ngIf="archivo.visibilidad === 'publico'" class="badge badge-publico shadow-sm">
+                        <i class="bi bi-globe"></i> PÚBLICO
+                    </span>
+                </div>
+
+                <div class="card-body text-center d-flex flex-column pt-5">
+                    <div class="mb-3">
+                        <i class="bi display-4" [ngClass]="obtenerIcono(archivo.extension)"></i>
+                    </div>
+                    
+                    <h6 class="fw-bold text-dark text-truncate mb-1" [title]="archivo.nombre_original">
+                        {{ archivo.nombre_original }}
+                    </h6>
+                    <small class="text-muted d-block mb-3 fw-bold" style="font-size: 0.75rem;">{{ archivo.peso_legible }}</small>
+                    
+                    <p class="small text-secondary flex-grow-1 text-truncate-2 px-2 border-top pt-3" style="font-size: 0.8rem;">
+                        {{ archivo.descripcion || 'Sin descripción disponible.' }}
+                    </p>
+
+                    <div class="d-grid gap-2 mt-2">
+                        <button class="btn btn-success btn-sm rounded-3 fw-bold" (click)="descargar(archivo)" [disabled]="descargandoId === archivo.id">
+                            <span *ngIf="descargandoId === archivo.id" class="spinner-border spinner-border-sm"></span>
+                            <span *ngIf="descargandoId !== archivo.id"><i class="bi bi-download me-1"></i> Descargar</span>
+                        </button>
+                        
+                        <button *ngIf="esAdmin || (esTecnico && archivo.created_by === archivo.current_user_id)" 
+                                class="btn btn-sm text-white bg-danger border-0 rounded-3 hover-danger" 
+                                (click)="eliminar(archivo.id)" 
+                                title="Mover a papelera">
+                            <i class="bi bi-trash3-fill"></i> Eliminar
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card-footer bg-light border-top-0 pt-2 pb-2 text-center">
+                    <small class="text-muted" style="font-size: 0.7rem;">
+                        <i class="bi bi-person-circle me-1"></i> {{ archivo.creator?.name || 'Sistema' }}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="archivosFiltrados.length === 0" class="col-12 text-center py-5">
+            <div class="opacity-25 mb-3">
+                <i class="bi bi-folder-x display-1 text-navy"></i>
+            </div>
+            <h5 class="text-navy fw-bold">No se encontraron archivos</h5>
+            <p class="text-muted small">Intente cambiar los filtros o la búsqueda.</p>
+        </div>
+    </div>
+</div>

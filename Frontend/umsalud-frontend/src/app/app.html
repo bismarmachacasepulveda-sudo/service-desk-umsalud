@@ -1,0 +1,83 @@
+<app-navbar *ngIf="MostrarLayout"></app-navbar>
+
+<div class="d-flex">
+  <aside *ngIf="MostrarLayout" 
+         class="sidebar bg-dark text-white shadow-sm offcanvas-lg offcanvas-start" 
+         tabindex="-1"
+         id="sidebarMenu">
+    
+    <div class="offcanvas-header d-lg-none bg-dark text-white border-bottom border-secondary">
+      <h5 class="offcanvas-title fw-bold">RED UMSALUD</h5>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu"></button>
+    </div>
+
+    <div class="offcanvas-body p-3">
+      <nav class="nav flex-column gap-1 w-100">
+        <span class="sidebar-heading">MENU</span>
+        
+        <a class="nav-link text-white side-item" routerLink="/dashboard" routerLinkActive="active">
+          <i class="bi bi-speedometer2 me-2"></i> Dashboard
+        </a>
+        <a class="nav-link text-white side-item" routerLink="/tickets" routerLinkActive="active">
+  <i class="bi bi-ticket-perforated me-2"></i>
+  
+  @if (user?.role === 'admin') {
+    <span>Gestión de Tickets</span>
+  } @else if (user?.role === 'tecnico') {
+    <span>Atención de Tickets</span>
+  } @else {
+    <span>Mis Tickets</span>
+  }
+</a>
+        <a class="nav-link text-white side-item" routerLink="/reservas" routerLinkActive="active">
+          <i class="bi bi-calendar-event me-2"></i> Reservas
+        </a>
+
+        <a class="nav-link text-white side-item" routerLink="/repositorio" routerLinkActive="active" >
+          <i class="bi bi-folder2-open me-2"></i> Repositorio
+        </a>
+
+        <ng-container *ngIf="user?.role === 'admin' || user?.role === 'tecnico'">
+          <hr class="border-secondary my-3">
+          <span *ngIf="user?.role === 'admin'" class="sidebar-heading text-muted small text-uppercase fw-bold mb-2">
+          Gestión y Reportes
+          </span>
+          <a class="nav-link text-white side-item" routerLink="/reportes" routerLinkActive="active">
+            <i class="bi bi-file-earmark-pdf me-2 text-danger"></i> {{ user?.role === 'admin' ? 'Informes y Reportes' : 'Informes' }}
+          </a>
+          <ng-container *ngIf="user?.role === 'admin'">
+            <a class="nav-link text-white side-item" routerLink="/users" routerLinkActive="active">
+              <i class="bi bi-people me-2"></i> Usuarios
+            </a>
+            <a class="nav-link text-white side-item" routerLink="/areas-admin" routerLinkActive="active">
+              <i class="bi bi-geo-alt me-2"></i> Áreas
+            </a>
+            <a class="nav-link text-white side-item" routerLink="/ambientes" routerLinkActive="active">
+              <i class="bi bi-building me-2"></i> Ambientes
+            </a>
+            <a class="nav-link text-white side-item" routerLink="/categorias" routerLinkActive="active">
+              <i class="bi bi-tags me-2"></i> Categorías
+            </a>
+          </ng-container> 
+        </ng-container>
+         <hr class="border-secondary my-3">
+              <ng-container *ngIf="user?.role === 'admin'">
+            <a class="nav-link side-item" routerLink="/papelera" routerLinkActive="active">
+                <i class="bi bi-trash3-fill me-3"></i> Papelera
+             </a>
+ <a class="nav-link text-white side-item" routerLink="/admin/auditoria" routerLinkActive="active">
+        <i class="bi bi-fingerprint me-2"></i> Auditoría Global
+    </a>
+        </ng-container> 
+      
+      </nav>
+    </div>
+    
+  </aside>
+  <main class="flex-grow-1 p-0 bg-light min-vh-100">
+    <router-outlet></router-outlet>
+  </main>
+  
+</div>
+
+<app-asistente-virtual *ngIf="user"></app-asistente-virtual>

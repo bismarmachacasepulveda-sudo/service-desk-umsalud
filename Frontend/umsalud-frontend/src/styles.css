@@ -1,0 +1,320 @@
+/* You can add global styles to this file, and also import other style files */
+/* Evita que el body cree un scroll horizontal global innecesario */
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+    position: relative;
+}
+
+/* Asegura que el contenedor de Angular no empuje el ancho */
+.container, .container-fluid {
+    max-width: 100vw !important;
+    overflow-x: hidden;
+}
+/* Estructura Base */
+.sidebar {
+  width: 260px;
+  min-height: calc(100vh - 56px); /* Altura total menos el Navbar */
+  transition: all 0.3s ease;
+  z-index: 1000;
+  background-color: #001f3f !important; /* Un azul más oscuro que el Navbar */
+}
+
+.main-content {
+  background-color: #f4f7f9;
+  min-height: calc(100vh - 56px);
+  overflow-y: auto;
+}
+
+/* Ítems del Menú */
+.side-item {
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+
+.side-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.side-item.active {
+  background-color: #b00000 !important; /* Rojo institucional para el activo */
+  color: white !important;
+  font-weight: bold;
+}
+
+.sidebar-divider {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Asegurar que el Sidebar en móvil esté por encima de todo */
+@media (max-width: 991.98px) {
+    .sidebar.offcanvas-lg {
+        z-index: 1050; /* Por encima del backdrop de Bootstrap (1040) */
+        width: 280px;
+    }
+}
+
+/* En escritorio, el sidebar es estático y el main ocupa el resto */
+@media (min-width: 992px) {
+    .sidebar {
+        width: 260px;
+        min-height: calc(100vh - 56px); /* Altura menos el navbar */
+        position: sticky;
+        top: 56px;
+    }
+
+  .main-content {
+    margin-left: 0; /* Bootstrap flex manejará el espacio */
+  }
+}
+
+/* Estilo de los items del menú lateral */
+.side-item {
+  border-radius: 8px;
+  margin: 2px 0;
+  padding: 10px 15px;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.side-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-heading {
+  display: block;
+  font-size: 0.75rem; /* Un poco más grande para legibilidad */
+  font-weight: 800; /* Extra negrita */
+  text-transform: uppercase;
+  letter-spacing: 1.5px; /* Espaciado profesional */
+  color: #adb5bd !important; /* Gris claro que resalta en el fondo oscuro */
+  padding: 1.5rem 1.2rem 0.5rem; /* Espacio superior para separar bloques */
+  opacity: 0.8;
+}
+
+/* Prioridad Crítica - Color Guindo / Marrón */
+.bg-critica {
+    background-color: #640000 !important; /* Guindo UMSALUD */
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(100, 0, 0, 0.4);
+}
+
+.pulse-animation {
+    animation: priority-pulse 2s infinite;
+}
+
+@keyframes priority-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* Paleta UMSALUD */
+:root {
+    --um-navy: #003366;
+    --um-red: #cc0000;
+    --um-guindo: #640000;
+}
+
+/* Prioridad Crítica - Estilo Guindo */
+.badge-critica {
+    background-color: var(--um-guindo) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(100, 0, 0, 0.4);
+    border: 1px solid #4a0000;
+    font-weight: 800;
+}
+
+/* Animación de Pulso para Críticos */
+.pulse-animation {
+    animation: priority-pulse 2s infinite;
+}
+
+@keyframes priority-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgb(107, 99, 99); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(79, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(100, 0, 0, 0); }
+}
+
+/* Resaltado de mis tickets */
+.ticket-mine {
+    border-left: 6px solid var(--um-navy) !important;
+    background-color: rgba(0, 31, 63, 0.02);
+}
+
+.ticket-collaborator {
+    border-left: 4px solid #ffc107 !important;
+    background-color: rgba(255, 193, 7, 0.02);
+}
+
+/* Mejoras en la tabla */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03);
+    transition: background-color 0.2s ease;
+}
+
+.ticket-row td {
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+
+/* =========================================
+   VARS: TUS COLORES INSTITUCIONALES
+========================================= */
+:root {
+    --umsalud-blue: #00376e;
+    --umsalud-red: #b00000;
+    /* Versiones suaves para fondos */
+    --umsalud-blue-soft: rgba(0, 31, 63, 0.05);
+    --umsalud-red-soft: rgba(176, 0, 0, 0.08);
+}
+
+/* =========================================
+   CLASES DE CONTENEDORES PERSONALIZADOS
+========================================= */
+
+/* ESTILO 1: La Tarjeta Institucional (Elegante)
+   Úsala para: Contenedores principales, formularios, detalles del ticket.
+   Qué tiene: Fondo blanco limpio, una sombra muy suave y una línea azul arriba.
+*/
+.card-umsalud-pro {
+    background-color: #fff;
+    border: none;
+    border-radius: 12px; /* Bordes más redondeados */
+    /* Sombra difuminada moderna */
+    box-shadow: 0 10px 30px -10px rgba(0, 31, 63, 0.15);
+    /* El toque de marca: una línea superior azul */
+    border-top: 4px solid var(--umsalud-blue);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background: linear-gradient(
+        175deg, 
+        #b00000c5 0%, 
+        #001f3f27 10%  /* Azul un poco más transparente (85% - D9) */
+         /* Rojo un poco más transparente (85% - D9) */
+    );
+}
+
+.card-umsalud-prosn {
+    background-color: #fff;
+    border: none;
+    border-radius: 12px; /* Bordes más redondeados */
+    /* Sombra difuminada moderna */
+    box-shadow: 0 10px 30px -10px rgba(0, 31, 63, 0.15);
+    /* El toque de marca: una línea superior azul */
+    border-top: 4px solid var(--umsalud-blue);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+/* Efecto hover opcional para dashboard */
+.card-umsalud-pro.interactive:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px -10px rgba(0, 31, 63, 0.25);
+}
+
+
+/* ESTILO 2: El Espacio de Alerta/Atención (Moderno)
+*/
+.box-umsalud-alert {
+    background-color: var(--umsalud-red-soft);
+    border-radius: 10px;
+    border: 1px solid rgba(176, 0, 0, 0.3);
+    /* Una sombra roja resplandeciente muy sutil */
+    box-shadow: 0 4px 15px rgba(176, 0, 0, 0.16);
+    padding: 1.5rem;
+}
+
+
+/* ESTILO 3: Encabezado de Sección con Degradado
+*/
+.header-umsalud-gradient {
+    /* Degradado sutil entre tus dos colores */
+    background: linear-gradient(135deg, var(--umsalud-blue) 100%, #9f0000 100%);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px -5px rgba(0, 31, 63, 0.4);
+    margin-bottom: 2rem;
+}
+.header-umsalud-gradient h2, 
+.header-umsalud-gradient p {
+    color: white !important;
+}
+
+
+/* UTILIDAD EXTRA: Sombras suaves para cualquier cosa */
+.shadow-soft {
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08) !important;
+}
+
+/* VARIABLES CORPORATIVAS */
+:root {
+    --ums-navy: #003366;   /* Azul Marino Principal */
+    --ums-guindo: #c00000; /* Guindo Institucional */
+}
+
+/* TEXTOS Y FONDOS */
+.text-navy { color: var(--ums-navy) !important; }
+.text-guindo { color: var(--ums-guindo) !important; }
+.bg-navy { background-color: var(--ums-navy) !important; }
+.bg-guindo { background-color: var(--ums-guindo) !important; }
+
+/* BOTONES PERSONALIZADOS */
+.btn-navy {
+    background-color: var(--ums-navy);
+    color: white;
+    border: 1px solid var(--ums-navy);
+}
+.btn-navy:hover {
+    background-color: #001630;
+    color: white;
+}
+
+.btn-outline-navy {
+    color: var(--ums-navy);
+    border-color: var(--ums-navy);
+}
+.btn-outline-navy:hover {
+    background-color: var(--ums-navy);
+    color: white;
+}
+
+/* BADGES DE VISIBILIDAD */
+.badge-publico {
+    background-color: #198754; /* Verde éxito */
+    color: white;
+}
+.badge-tecnico {
+    background-color: var(--ums-guindo); /* Guindo para restringido */
+    color: white;
+}
+
+/* 🟢 NUEVO: SELECTOR DE TARJETAS (VISIBILIDAD) */
+.selector-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 2px solid #e9ecef;
+    background-color: #fff;
+}
+
+.selector-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Estado Activo: Público */
+.selector-card.active-publico {
+    border-color: #198754;
+    background-color: #f8fffb;
+    color: #198754;
+}
+
+/* Estado Activo: Técnico */
+.selector-card.active-tecnico {
+    border-color: var(--ums-guindo);
+    background-color: #fff5f5;
+    color: var(--ums-guindo);
+}

@@ -1,0 +1,56 @@
+/* Colores Institucionales */
+.text-primary-ums {
+    color: #003366 !important;
+}
+
+.bg-primary-ums {
+    background-color: #003366 !important;
+}
+
+.btn-primary-ums {
+    background-color: #003366;
+    border-color: #003366;
+    color: white;
+}
+
+.btn-primary-ums:hover {
+    background-color: #002244;
+    border-color: #002244;
+}
+
+/* Transiciones */
+.transition-hover {
+    transition: background-color 0.2s ease-in-out;
+}
+
+.transition-hover:hover {
+    background-color: rgba(0, 51, 102, 0.02) !important;
+}
+
+.transition-transform:active {
+    transform: scale(0.98);
+}
+
+.bg-light-hover:hover {
+    background-color: #f8f9fa;
+}
+
+/* Tipografía */
+.ls-1 {
+    letter-spacing: 1px;
+}
+
+/* Inputs más limpios */
+.form-control:focus {
+    box-shadow: none;
+    border-color: #003366;
+}
+
+/* Cards */
+.card {
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.05) !important;
+}

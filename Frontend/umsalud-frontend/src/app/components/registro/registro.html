@@ -1,0 +1,134 @@
+<div class="registro-container d-flex align-items-center justify-content-center min-vh-100 py-5" 
+     style="background: radial-gradient(circle, #f8f9fa 0%, #e9ecef 100%);">
+  
+  <div class="card shadow-lg border-0 animate__animated animate__fadeIn" style="max-width: 650px; width: 100%; border-radius: 15px; overflow: hidden;">
+    
+    <div style="height: 6px; background-color: #003366;"></div>
+
+    <div class="card-body p-4 p-md-5">
+
+      <div *ngIf="registroExitoso" class="text-center animate__animated animate__bounceIn">
+        <div class="mb-4">
+            <div class="rounded-circle bg-success bg-opacity-10 d-inline-flex align-items-center justify-content-center shadow-sm" style="width: 100px; height: 100px;">
+                <i class="bi bi-check-all text-success" style="font-size: 4rem;"></i>
+            </div>
+        </div>
+        
+        <h3 class="fw-bold text-dark mb-3">¡Proceso Completado!</h3>
+        
+        <div class="bg-light p-4 rounded-3 mb-4 border-start border-4 border-success text-start">
+            <p class="mb-0 text-dark" style="line-height: 1.6;">
+                <i class="bi bi-info-circle-fill text-success me-2"></i>
+                {{ mensajeExito }}
+            </p>
+        </div>
+
+        <p class="text-muted mb-4">
+            <small class="fw-bold"><i class="bi bi-shield-lock me-1"></i> Tu acceso está siendo procesado.</small><br>
+            <small>Podrás iniciar sesión una vez que un administrador valide tu identidad.</small>
+        </p>
+
+        <a routerLink="/login" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3" 
+           style="background-color: #003366; border: none; border-radius: 10px; transition: transform 0.2s;">
+            <i class="bi bi-arrow-left me-2"></i> Volver al Inicio de Sesión
+        </a>
+      </div>
+
+      <div *ngIf="!registroExitoso">
+
+          <div class="text-center mb-4">
+            <div class="mb-2">
+                <i class="bi bi-person-badge" style="font-size: 2.5rem; color: #003366;"></i>
+            </div>
+            <h3 class="fw-bold" style="color: #003366; letter-spacing: -0.5px;">Crear Cuenta</h3>
+            <p class="text-muted fw-medium">Solicitud de Acceso - RED UMSALUD</p>
+            <hr class="mx-auto w-25 mt-2" style="border-top: 2px solid #003366; opacity: 0.2;">
+          </div>
+
+          <div *ngIf="mensajeError" class="alert alert-danger shadow-sm border-0 border-start border-4 border-danger animate__animated animate__shakeX d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill fs-5 me-3"></i> 
+            <div>{{ mensajeError }}</div>
+          </div>
+          
+          <form (ngSubmit)="registrarse()" class="needs-validation">
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-person me-1"></i>Nombre Completo</label>
+                    <input type="text" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.nombre_completo" name="nombre" required placeholder="Ej: Dr. Juan Pérez"
+                           style="border-radius: 8px;">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-envelope me-1"></i>Correo Institucional o Personal</label>
+                    <input type="email" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.email" name="email" required placeholder="usuario@umsa.bo"
+                           style="border-radius: 8px;">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-phone me-1"></i>Celular / Teléfono</label>
+                    <input type="text" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.telefono" name="telefono" required placeholder="7XXXXXXXX"
+                           style="border-radius: 8px;">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-briefcase me-1"></i>Cargo</label>
+                    <input type="text" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.cargo" name="cargo" placeholder="Ej: Administrativo, Docente, Investigador" required
+                           style="border-radius: 8px;">
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-geo-alt me-1"></i>Área o Instituto de Pertenencia</label>
+                    <div class="input-group shadow-sm">
+                        <select class="form-select form-select-lg fs-6 border-light-subtle" [(ngModel)]="datosRegistro.area_id" name="area" required
+                                style="border-radius: 8px;">
+                            <option [ngValue]="null" disabled selected>-- Seleccione su Area/Ubicacion --</option>
+                            <option *ngFor="let area of listaAreas" [ngValue]="area.id">{{ area.name }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-lock me-1"></i>Contraseña</label>
+                    <input type="password" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.password" name="pass" required minlength="6" placeholder="******"
+                           style="border-radius: 8px;">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-secondary"><i class="bi bi-lock-fill me-1"></i>Confirmar Contraseña</label>
+                    <input type="password" class="form-control form-control-lg fs-6 shadow-sm border-light-subtle" 
+                           [(ngModel)]="datosRegistro.password_confirmation" name="pass_conf" required placeholder="******"
+                           style="border-radius: 8px;">
+                </div>
+            </div>
+
+            <div class="d-grid mt-4">
+                <button type="submit" class="btn btn-primary fw-bold py-3 shadow shadow-sm d-flex align-items-center justify-content-center" 
+                        [disabled]="cargando" 
+                        style="background-color: #003366; border: none; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s ease;">
+                    <span *ngIf="cargando" class="spinner-border spinner-border-sm me-3" role="status"></span>
+                    <i *ngIf="!cargando" class="bi bi-send-check me-2"></i>
+                    {{ cargando ? 'Enviando Solicitud...' : 'Enviar Solicitud de Registro' }}
+                </button>
+            </div>
+          </form>
+
+          <div class="text-center mt-4 pt-2">
+            <p class="text-muted small">
+                ¿Ya tienes una cuenta aprobada? 
+                <a routerLink="/login" class="fw-bold text-decoration-none border-bottom border-2 pb-1" style="color: #003366; border-color: #003366;">
+                    Inicia Sesión aquí
+                </a>
+            </p>
+          </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

@@ -1,0 +1,453 @@
+<div class="container mt-3 mb-2">
+  
+  
+<div class="row align-items-center mb-4 g-3">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-lg border-bottom border-5" style="border-bottom-color: #003366 !important;">
+    <div>
+        <h3 class="fw-bold mb-1" style="color: #003366;">
+            <i class="bi bi-people-fill me-2"></i>
+            Control de Usuarios y Accesos
+        </h3>
+        <p class="text-muted mb-0 small">Directorio institucional, administración de roles y permisos del sistema Red UMSALUD.</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+        <div class="me-3 text-end d-none d-md-block">
+            <span class="badge bg-light text-dark border p-2">
+                <i class="bi bi-person-check-fill text-success me-1"></i> {{ users.length }} Registrados
+            </span>
+        </div>
+    </div>
+</div>
+  
+  
+<div *ngIf="successMessage" class="alert alert-success shadow-sm animate__animated animate__fadeIn">
+    <i class="bi bi-check-circle-fill me-2"></i>{{ successMessage }}
+  </div>
+  <div *ngIf="errorMessage" class="alert alert-danger shadow-sm animate__animated animate__fadeIn">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ errorMessage }}
+  </div>
+ <!-- VIÑETAS  Usuarios activos y Solicitudes Pendiente -->
+<ul class="nav nav-tabs mb-4 border-bottom-0 gap-2">
+    <li class="nav-item">
+        <a class="nav-link border-0 transition-all px-4 py-3" 
+           [class.active]="activeTab === 'activos'" 
+           (click)="activeTab = 'activos'" 
+           style="cursor: pointer; transition: all 0.3s ease; border-radius: 12px 12px 0 0;"
+           [ngStyle]="{
+               'color': activeTab === 'activos' ? '#003366' : '#6c757d', 
+               'font-weight': activeTab === 'activos' ? '700' : '500', 
+               'background-color': activeTab === 'activos' ? 'rgba(0, 51, 102, 0.05)' : 'transparent',
+               'border-bottom': activeTab === 'activos' ? '3px solid #003366' : '3px solid transparent'
+           }">
+           <i class="bi bi-people-fill me-2" [style.color]="activeTab === 'activos' ? '#003366' : '#6c757d'"></i>
+           Usuarios Registrados
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link border-0 transition-all px-4 py-3 position-relative" 
+           [class.active]="activeTab === 'pendientes'" 
+           (click)="activeTab = 'pendientes'" 
+           style="cursor: pointer; transition: all 0.3s ease; border-radius: 12px 12px 0 0;"
+           [ngStyle]="{
+               'color': activeTab === 'pendientes' ? '#D32F2F' : '#6c757d', 
+               'font-weight': activeTab === 'pendientes' ? '700' : '500', 
+               'background-color': activeTab === 'pendientes' ? 'rgba(211, 47, 47, 0.05)' : 'transparent',
+               'border-bottom': activeTab === 'pendientes' ? '3px solid #D32F2F' : '3px solid transparent'
+           }">
+           <i class="bi bi-person-plus-fill me-2" [style.color]="activeTab === 'pendientes' ? '#D32F2F' : '#6c757d'"></i>
+           Solicitudes de Acceso
+           <span *ngIf="pendientes.length > 0" 
+                 class="badge rounded-pill bg-danger ms-1 shadow-sm animate__animated animate__pulse animate__infinite"
+                 style="font-size: 0.7rem; vertical-align: middle;">
+                 {{ pendientes.length }}
+           </span>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link border-0 transition-all px-4 py-3" 
+           [class.active]="activeTab === 'historial'" 
+           (click)="activeTab = 'historial'; loadHistorial()" 
+           style="cursor: pointer; transition: all 0.3s ease; border-radius: 12px 12px 0 0;"
+           [ngStyle]="{
+               'color': activeTab === 'historial' ? '#212529' : '#6c757d', 
+               'font-weight': activeTab === 'historial' ? '700' : '500', 
+               'background-color': activeTab === 'historial' ? '#f8f9fa' : 'transparent',
+               'border-bottom': activeTab === 'historial' ? '3px solid #212529' : '3px solid transparent'
+           }">
+           <i class="bi bi-clock-history me-2"></i>
+           Bitácora de Solicitudes
+        </a>
+    </li>
+</ul>
+<!-- FORMULARIO DE REGISTRO Y LISTA DE USUARIOS -->
+<div *ngIf="activeTab === 'activos'" class="animate__animated animate__fadeIn">
+  
+  <div class="row g-3">
+<div class="col-lg-4">
+  <div class="card shadow border-0 rounded-4 overflow-hidden sticky-top" style="top: 2rem; z-index: 10;">
+    
+ 
+
+    <div class="card-header" [ngClass]="isEditing ? 'bg-warning text-white py-3' : 'bg-navy text-white py-3'">
+      <h5 class="fw-bold mb-0" style="color: #ffffff;">
+        <i class="bi me-2" [ngClass]="isEditing ? 'bi-person-gear text-warning' : 'bi-person-plus-fill text-white'"></i>
+        {{ isEditing ? 'Actualizar Perfil' : 'Nuevo Usuario' }}
+      </h5>
+    </div>
+
+    <div class="card-body p-4 pt-2">
+      <form (ngSubmit)="registerUser()">
+        
+        <div class="mb-4">
+          <p class="text-uppercase fw-bold text-primary mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">
+            <i class="bi bi-person-lines-fill me-1"></i> Información Personal
+          </p>
+          
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-dark mb-1">Nombre Completo</label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+              <input type="text" class="form-control border-start-0 ps-0" [(ngModel)]="newUser.name" name="name" required placeholder="Ej. Juan Pérez">
+            </div>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-7 mb-0">
+              <label class="form-label fw-semibold small text-dark mb-1">Cargo / Título</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="newUser.cargo" name="cargo" placeholder="Ej. Administrativo, Docente">
+            </div>
+            <div class="col-5 mb-0">
+              <label class="form-label fw-semibold small text-dark mb-1">Teléfono/Celular</label>
+              <input type="text" class="form-control form-control-sm" [(ngModel)]="newUser.phone" name="phone" placeholder="7/6******">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <p class="text-uppercase fw-bold text-primary mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">
+            <i class="bi bi-shield-lock-fill me-1"></i> Seguridad y Acceso
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-dark mb-1">Correo electronico</label>
+            <input type="email" class="form-control form-control-sm bg-light-subtle" [(ngModel)]="newUser.email" name="email" required placeholder="usuario@umsalud.bo">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-dark mb-1">
+              Contraseña {{ isEditing ? '(Opcional)' : '' }}
+            </label>
+            <div class="input-group input-group-sm">
+              <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-key"></i></span>
+              <input type="password" class="form-control border-start-0 ps-0" [(ngModel)]="newUser.password" name="password" [required]="!isEditing" placeholder="••••••••">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold small text-dark mb-1">Rol de Usuario</label>
+            <select class="form-select form-select-sm border-2" 
+                    [ngClass]="{'border-primary': newUser.role === 'usuario', 'border-success': newUser.role === 'tecnico', 'border-dark': newUser.role === 'admin'}"
+                    [(ngModel)]="newUser.role" name="role" (ngModelChange)="onRoleChange()">
+              <option value="usuario">👤 Usuario Final</option>
+              <option value="tecnico">🛠️ Técnico de Soporte</option>
+              <option value="admin">🔑 Administrador</option>
+            </select>
+          </div>
+        </div>
+
+        <div *ngIf="newUser.role !== 'admin'" class="animate__animated animate__fadeIn">
+          <div class="p-3 rounded-4 mb-4" [ngClass]="newUser.role === 'usuario' ? 'bg-primary-subtle' : 'bg-success-subtle'">
+            
+            <div *ngIf="newUser.role === 'usuario'">
+              <label class="form-label text-primary fw-bold small mb-2"><i class="bi bi-geo-alt-fill me-1"></i> Área de Trabajo</label>
+              <select class="form-select form-select-sm shadow-sm border-0" [(ngModel)]="newUser.area_id" name="area_id" required>
+                <option [ngValue]="null">-- Seleccione Ubicación --</option>
+                <option *ngFor="let area of areas" [value]="area.id">{{ area.name }}</option>
+              </select>
+              <p class="text-primary-emphasis small mt-2 mb-0" style="font-size: 0.7rem;">El área determina la procedencia de sus tickets.</p>
+            </div>
+
+            <div *ngIf="newUser.role === 'tecnico'">
+              <div class="mb-2">
+                <label class="form-label text-success fw-bold small mb-1"><i class="bi bi-card-text me-1"></i> C.I. del Especialista</label>
+                <input type="text" class="form-control form-control-sm border-0 shadow-sm" [(ngModel)]="newUser.ci" name="ci" placeholder="Cédula de Identidad">
+              </div>
+              <div>
+                <label class="form-label text-success fw-bold small mb-1"><i class="bi bi-star-fill me-1"></i> Especialidad</label>
+                <input type="text" class="form-control form-control-sm border-0 shadow-sm" [(ngModel)]="newUser.expertise" name="expertise" placeholder="Ej. Redes, Hardware, Software">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-lg fw-bold text-white shadow-sm py-2 rounded-3 transition-all" 
+                  [ngClass]="isEditing ? 'btn-warning' : 'btn-primary'" 
+                  [style.background-color]="isEditing ? '' : '#003366'"
+                  [disabled]="isLoading">
+            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+            <i class="bi bi-cloud-arrow-up-fill me-2" *ngIf="!isLoading"></i>
+            {{ isLoading ? 'Procesando...' : (isEditing ? 'Guardar Cambios' : 'Registrar Miembro') }}
+          </button>
+          
+          <button type="button" class="btn btn-sm btn-outline-secondary border-0 py-2" *ngIf="isEditing" (click)="cancelEdit()">
+            <i class="bi bi-x-circle me-1"></i> Cancelar Edición
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+    <div class="col-lg-8">
+      <div class="card px-2 py-3 border-0 shadow-sm h-100"> <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold text-dark">Usuarios Activos</h4>
+            <button class="btn btn-sm btn-outline-secondary" (click)="loadUsers()">
+                <i class="bi bi-arrow-clockwise"></i> Actualizar
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+            <thead class="bg-light">
+                <tr>
+                <th>Nombre / Cargo</th> 
+                <th>Contacto</th>
+                <th>Estado</th>
+                <th>Rol</th>
+                <th>Detalle</th>
+                <th class="text-end" style="color: #003366;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let u of users">
+                <td>
+                    <div class="fw-bold" style="color: #003366;">{{ u.name }}</div>
+                    <small class="badge bg-light text-muted border">{{ u.cargo || 'Sin cargo' }}</small>
+                </td>
+                <td>
+                    <div class="text-primary" style="font-size: 0.75rem;">{{ u.email }}</div>
+                    <div class="d-flex flex-column">
+                        <span class="fw-bold"><i class="bi bi-telephone me-1 text-muted"></i>{{ u.phone || 'Sin número' }}</span>
+                        <small *ngIf="u.whatsapp_active" class="text-success" style="font-size: 0.7rem;">
+                            <i class="bi bi-whatsapp me-1"></i>Notificaciones activas
+                        </small>
+                    </div>
+                </td>
+                <td>
+                      <span class="badge d-inline-flex align-items-center py-2 px-1" 
+                            [ngClass]="u.estado === 'activo' ? 'bg-success-subtle text-success border border-success' : 'bg-warning-subtle text-warning border border-warning'"
+                            [title]="'Aprobado por: ' + (u.approver?.name || 'Admin Sistema')"
+                            style="cursor: help;">
+                          <i class="bi bi-shield-check me-2"></i>
+                          {{ u.estado | titlecase }}
+                      </span>
+                  </td>
+                <td class="align-middle">
+                <div [ngClass]="{
+                    'role-admin': u.role === 'admin',
+                    'role-tecnico': u.role === 'tecnico',
+                    'role-usuario': u.role === 'usuario'
+                }" class="badge d-inline-flex align-items-center px-2 py-1 rounded-pill">
+                    <i class="bi me-1" [ngClass]="{
+                        'bi-shield-check': u.role === 'admin',
+                        'bi-tools': u.role === 'tecnico',
+                        'bi-person-circle': u.role === 'usuario'
+                    }"></i>
+                    <span class="fw-bold" style="font-size: 0.62rem; letter-spacing: 0.3px;">
+                        {{ getRoleLabel(u.role) | uppercase }}
+                    </span>
+                </div>
+                </td>
+                <td class="align-middle">
+                    <div *ngIf="u.role === 'usuario'" class="d-flex flex-column">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">Área</small>
+                        <div class="d-flex align-items-center text-dark">
+                            <i class="bi bi-geo-alt-fill text-danger me-1 small"></i>
+                            <span class="fw-semibold small">{{ getAreaName(u.area_id) }}</span>
+                        </div>
+                    </div>
+                    <div *ngIf="u.role === 'tecnico'" class="d-flex flex-column">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">Especialidad</small>
+                        <div class="d-flex align-items-center text-dark">
+                            <i class="bi bi-tools text-success me-1 small"></i>
+                            <span class="fw-semibold small">{{ u.expertise || 'General' }}</span>
+                        </div>
+                    </div>
+                    <div *ngIf="u.role === 'admin'" class="d-flex flex-column">
+                        <small class="text-uppercase text-muted fw-bold" style="font-size: 0.65rem;">Acceso</small>
+                        <div class="d-flex align-items-center text-primary">
+                            <i class="bi bi-shield-lock-fill me-1 small"></i>
+                            <span class="fw-semibold small">Control Total</span>
+                        </div>
+                    </div>
+                </td>
+                <td class="text-end">
+                    <div class="btn-group shadow-sm">
+                        <button class="btn btn-outline-info btn-sm" (click)="abrirAuditoria(u)" title="Ver Auditoría">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </button>
+                        <button class="btn btn-outline-primary btn-sm" (click)="editUser(u)" title="Editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button class="btn btn-outline-danger btn-sm" (click)="deleteUser(u.id)" title="Dar de Baja">
+                            <i class="bi bi-trash-fill"></i>
+                        </button>
+                    </div>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+      </div>
+    </div> </div> </div>
+
+</div>
+
+<!-- Solicitudes de Registro -->
+  <div *ngIf="activeTab === 'pendientes'" class="animate__animated animate__fadeIn">
+      
+      <div *ngIf="pendientes.length === 0" class="text-center p-5 bg-white rounded shadow-sm border border-dashed">
+          <i class="bi bi-clipboard-check text-muted fs-1 mb-3"></i>
+          <h5 class="text-muted">Bandeja de entrada vacía</h5>
+          <p class="text-muted small">No hay nuevas solicitudes por procesar.</p>
+      </div>
+
+      <div class="row g-3">
+          <div class="col-md-6 col-lg-4" *ngFor="let solicitud of pendientes">
+              <div class="card h-100 shadow-sm border-0 border-top border-4 border-warning">
+                  <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div>
+                            <h6 class="fw-bold text-dark mb-0">{{ solicitud.name }}</h6>
+                            <small class="text-muted">{{ solicitud.cargo }}</small>
+                          </div>
+                          <span class="badge bg-warning-subtle text-warning border border-warning small">Solicitud</span>
+                      </div>
+                      
+                      <div class="small text-muted mb-4">
+                          <div class="mb-2"><i class="bi bi-envelope me-2"></i>{{ solicitud.email }}</div>
+                          <div class="mb-2"><i class="bi bi-telephone me-2"></i>{{ solicitud.phone }}</div>
+                          <div class="mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>{{ getAreaName(solicitud.area_id) }}</div>
+                          <div class="p-2 bg-light rounded mt-2 border-start border-3 border-secondary">
+                            <i class="bi bi-clock me-1"></i> Recibida: {{ solicitud.created_at | date:'dd/MM/yyyy HH:mm' }}
+                          </div>
+                      </div>
+
+                      <div class="d-grid gap-2">
+                          <button class="btn btn-success" (click)="aprobar(solicitud)">
+                              <i class="bi bi-person-check me-2"></i> Validar Acceso
+                          </button>
+                          <button class="btn btn-outline-danger btn-sm" (click)="rechazar(solicitud)">
+                              <i class="bi bi-x-circle me-1"></i> Rechazar Solicitud
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<!-- Historial de solicitudes -->
+ <div *ngIf="activeTab === 'historial'" class="animate__animated animate__fadeIn">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white py-3">
+            <h5 class="mb-0 small fw-bold"><i class="bi bi-clock-history me-2"></i>LOG DE DECISIONES DE REGISTRO</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-3">Solicitante</th>
+                            <th>Estado Final</th>
+                            <th>Fecha de Decisión</th>
+                            <th>Responsable Admin</th>
+                            <th>Observaciones / Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let sol of historialSolicitudes">
+                            <td class="ps-3">
+                                <div class="fw-bold">{{ sol.name }}</div>
+                                <small class="text-muted">{{ sol.email }}</small>
+                            </td>
+                            <td>
+                                <span class="badge" [ngClass]="sol.estado === 'aprobado' ? 'bg-success' : 'bg-danger'">
+                                    {{ sol.estado | uppercase }}
+                                </span>
+                            </td>
+                            <td>{{ sol.updated_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                            <td>
+                                <span class="text-dark fw-bold">
+                                    <i class="bi bi-person-check-fill me-1"></i>
+                                    {{ sol.estado === 'aprobado' ? sol.approver?.name : sol.rejecter?.name }}
+                                </span>
+                            </td>
+                            <td>
+                                <small class="text-muted italic">
+                                    {{ sol.motivo_rechazo || 'Aprobación estándar de cuenta.' }}
+                                </small>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para auditoria -->
+
+<div class="modal fade" [ngClass]="{'show d-block': mostrarModalAuditoria}" 
+     style="background: rgba(0,0,0,0.7);" *ngIf="mostrarModalAuditoria">
+    <div class="modal-dialog modal-dialog-centered shadow-lg">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-dark text-white border-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-shield-lock me-2"></i>Bitácora de Auditoría</h5>
+                <button type="button" class="btn-close btn-close-white" (click)="cerrarAuditoria()"></button>
+            </div>
+            <div class="modal-body p-4 text-center" *ngIf="usuarioAuditoria">
+                
+                <div class="mb-4">
+                  <div class="avatar-circle mx-auto bg-primary-subtle text-primary fw-bold mb-2 shadow-sm" style="width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                    {{ usuarioAuditoria.name.charAt(0) }}
+                  </div>
+                  <h5 class="fw-bold mb-0 text-dark">{{ usuarioAuditoria.name }}</h5>
+                  <span class="badge bg-light text-primary border px-3 rounded-pill">{{ usuarioAuditoria.role | uppercase }}</span>
+                </div>
+
+                <ul class="list-group list-group-flush text-start border rounded overflow-hidden">
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted"><i class="bi bi-calendar-plus me-2"></i>Alta en sistema:</span>
+                        <span class="fw-bold">{{ usuarioAuditoria.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted"><i class="bi bi-person-badge me-2"></i>Registrado por:</span>
+                        <span class="badge bg-light text-dark border">{{ usuarioAuditoria.creator?.name || 'Autorregistro Web' }}</span>
+                    </li>
+
+                    <li class="list-group-item d-flex justify-content-between p-3 bg-success-subtle">
+                        <span class="text-dark"><i class="bi bi-patch-check me-2"></i>Acceso aprobado por:</span>
+                        <span class="fw-bold text-success">{{ usuarioAuditoria.approver?.name || 'Admin Principal' }}</span>
+                    </li>
+
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted"><i class="bi bi-pencil-square me-2"></i>Última edición por:</span>
+                        <span class="fw-bold text-dark">{{ usuarioAuditoria.editor?.name || 'Sin modificaciones' }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between p-3">
+                        <span class="text-muted"><i class="bi bi-clock-history me-2"></i>Fecha de actualización:</span>
+                        <span class="fw-bold text-dark">{{ usuarioAuditoria.updated_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="modal-footer border-0 p-3">
+                <button type="button" class="btn btn-dark w-100 py-2 shadow-sm" (click)="cerrarAuditoria()">Entendido</button>
+            </div>
+        </div>
+    </div>
+</div>

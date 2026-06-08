@@ -1,0 +1,197 @@
+<div class="container mt-1 mb-2">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-4 shadow-lg border-bottom border-4" style="border-color: #003366 !important;">
+    
+    <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center justify-content-center rounded-circle me-3 shadow-sm" 
+             style="width: 60px; height: 60px; background-color: rgba(0, 51, 102, 0.1);">
+            <i class="bi bi-tags-fill fs-2" style="color: #003366;"></i>
+        </div>
+        
+        <div>
+            <h2 class="fw-bold mb-0" style="color: #003366;">Gestión de Categorías</h2>
+            <p class="text-muted mb-0 small text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.75rem;">
+                <span style="color: #525252;"> Clasificación de incidencias y Estructuración para el Repositorio</span>
+            </p>
+        </div>
+    </div>
+
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success shadow-sm animate__animated animate__fadeIn">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger shadow-sm animate__animated animate__shakeX">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+    </div>
+
+    <div *ngIf="!esAdmin && !isLoading" class="alert alert-info border-0 shadow-sm">
+        <i class="bi bi-info-circle-fill me-2"></i> Modo de solo lectura. Contacte al administrador para realizar cambios.
+    </div>
+
+    <div class="row mt-3">
+        
+        <div class="col-lg-4 mb-4" *ngIf="esAdmin">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="top: 20px; z-index: 1;">
+                <div class="card-header bg-navy text-white py-3">
+                    <h5 class="text-white fw-bold mb-0">
+                        <i class="bi-plus-circle-fill"></i>
+                        Nueva Categoría</h5>
+                </div>
+                <div class="card-body">
+                    <form (ngSubmit)="create()">
+                        
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Uso</label>
+                            <div class="d-flex gap-2">
+                                <div class="form-check card-radio flex-fill">
+                                    <input class="form-check-input" type="radio" name="catType" id="typeTicket" value="ticket" [(ngModel)]="newType">
+                                    <label class="form-check-label w-100 text-center py-2 border rounded" for="typeTicket" [class.bg-primary-subtle]="newType==='ticket'">
+                                        <i class="bi bi-ticket-perforated d-block fs-5"></i> Ticket
+                                    </label>
+                                </div>
+                                <div class="form-check card-radio flex-fill">
+                                    <input class="form-check-input" type="radio" name="catType" id="typeRepo" value="repositorio" [(ngModel)]="newType">
+                                    <label class="form-check-label w-100 text-center py-2 border rounded" for="typeRepo" [class.bg-warning-subtle]="newType==='repositorio'">
+                                        <i class="bi bi-folder2-open d-block fs-5"></i> Repo
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 animate__animated animate__fadeIn" *ngIf="newType === 'repositorio'">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Acceso</label>
+                            <select class="form-select" [(ngModel)]="newVisibility" name="catVis">
+                                <option value="publico">🌍 Público (Todos)</option>
+                                <option value="tecnico">🔒 Privado (Solo IT)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Nombre</label>
+                            <input type="text" class="form-control" [(ngModel)]="newName" name="catName" placeholder="Ej: Hardware, Redes..." required autocomplete="off">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-muted text-uppercase">Descripción (Opcional)</label>
+                            <textarea class="form-control" rows="2" [(ngModel)]="newDescription" name="catDesc" placeholder="Breve explicación del uso..."></textarea>
+                        </div>
+
+                        <button class="btn btn-primary w-100 py-2 fw-bold" [disabled]="isProcessing || !newName.trim()">
+                            <i class="bi" [ngClass]="isProcessing ? 'spinner-border spinner-border-sm' : 'bi-plus-lg'"></i>
+                            {{ isProcessing ? ' Guardando...' : ' Crear Categoría' }}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div [ngClass]="esAdmin ? 'col-lg-8' : 'col-12'">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold">Listado Activo</h6>
+                    <span class="badge bg-light text-dark border">{{ categories.length }} registros</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-muted small text-uppercase">
+                            <tr>
+                                <th class="ps-3">Estado</th>
+                                <th>Info</th>
+                                <th>Detalle</th>
+                                <th class="text-end pe-3" *ngIf="esAdmin">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let cat of categories">
+                                
+                                <td class="ps-3" style="width: 50px;">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" 
+                                               [checked]="cat.active" 
+                                               [disabled]="!esAdmin"
+                                               (change)="toggleActive(cat)"
+                                               style="cursor: pointer;">
+                                    </div>
+                                </td>
+
+                                <td style="width: 120px;">
+                                    <div class="d-flex flex-column gap-1">
+                                        <span class="badge border" [ngClass]="cat.tipo === 'ticket' ? 'bg-primary-subtle text-primary border-primary' : 'bg-warning-subtle text-warning-emphasis border-warning'">
+                                            {{ cat.tipo | uppercase }}
+                                        </span>
+                                        <span *ngIf="cat.visibilidad === 'tecnico'" class="badge bg-secondary-subtle text-secondary border">
+                                            <i class="bi bi-lock-fill"></i> PRIVADO
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div *ngIf="!editingCategory || editingCategory.id !== cat.id">
+                                        <div class="fw-bold text-dark" 
+                                             [title]="'Creado por: ' + (cat.creator?.name || 'Sistema')" 
+                                             style="cursor: help;">
+                                            {{ cat.name }}
+                                        </div>
+                                        <div class="small text-muted text-truncate" style="max-width: 300px;">
+                                            {{ cat.description || 'Sin descripción' }}
+                                        </div>
+                                    </div>
+
+                                    <div *ngIf="editingCategory && editingCategory.id === cat.id">
+                                        <input type="text" class="form-control form-control-sm mb-1 fw-bold" [(ngModel)]="editingCategory.name">
+                                        <input type="text" class="form-control form-control-sm text-muted" [(ngModel)]="editingCategory.description" placeholder="Descripción...">
+                                        
+                                        <div class="d-flex gap-2 mt-1">
+                                            <select class="form-select form-select-sm" [(ngModel)]="editingCategory.visibilidad" style="font-size: 0.75rem;">
+                                                <option value="publico">Público</option>
+                                                <option value="tecnico">Privado</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td class="text-end pe-3" *ngIf="esAdmin">
+                                    <div class="btn-group" *ngIf="!editingCategory || editingCategory.id !== cat.id">
+                                        <button class="btn btn-sm btn-white text-primary border-0" (click)="startEdit(cat)" title="Editar">
+                                            <i class="bi bi-pencil-square fs-5"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-white text-danger border-0" (click)="deleteCategory(cat.id)" title="Mover a papelera">
+                                            <i class="bi bi-trash3 fs-5"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="d-flex gap-2 justify-content-end" *ngIf="editingCategory && editingCategory.id === cat.id">
+                                        <button class="btn btn-success btn-sm" (click)="saveEdit()" [disabled]="isProcessing">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm" (click)="editingCategory = null">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="categories.length === 0 && !isLoading">
+                                <td colspan="4" class="text-center py-5">
+                                    <div class="text-muted opacity-50 mb-2">
+                                        <i class="bi bi-inbox fs-1"></i>
+                                    </div>
+                                    <p class="small text-muted">No hay categorías registradas aún.</p>
+                                </td>
+                            </tr>
+                            
+                            <tr *ngIf="isLoading">
+                                <td colspan="4" class="text-center py-4 text-primary">
+                                    <div class="spinner-border spinner-border-sm" role="status"></div>
+                                    <span class="ms-2 small">Cargando...</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

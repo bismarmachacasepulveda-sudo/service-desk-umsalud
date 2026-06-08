@@ -1,0 +1,298 @@
+<div class="container-fluid mt-4 px-4 pb-5">
+    
+    <div class="row align-items-center mb-4">
+        <div class="col-md-6">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary-ums text-white p-3 rounded-4 shadow-sm me-3">
+                    <i class="bi bi-shield-shaded fs-3"></i>
+                </div>
+                <div>
+                    <h2 class="fw-bold mb-0 text-primary-ums">Auditoría Institucional</h2>
+                    <p class="text-muted small mb-0 text-uppercase ls-1 fw-semibold">
+                        <span class="text-guindo">Red UMSALUD</span> • Bitácora de Operaciones
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="row g-2">
+                    <div class="col-md-5">
+                        <label class="small fw-bold text-primary-ums ms-1 mb-1">Acción Realizada</label>
+                        <select class="form-select form-select-sm border-light bg-light rounded-3" [(ngModel)]="filtros.action" (change)="cargarLogs(1)">
+                            <option value="">✨ Todas las acciones</option>
+                            <option value="created">🟢 Creaciones</option>
+                            <option value="updated">🟡 Modificaciones</option>
+                            <option value="deleted">🔴 Eliminaciones</option>
+                            <option value="approved">✅ Aprobación</option>
+                            <option value="rejected">❌ Rechazo</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="small fw-bold text-primary-ums ms-1 mb-1">Módulo / Entidad</label>
+                        <select class="form-select form-select-sm border-light bg-light rounded-3" [(ngModel)]="filtros.tipo" (change)="cargarLogs(1)">
+                            <option value="">📦 Todas las entidades</option>
+                            <option value="Ticket">Tickets</option>
+                            <option value="User">Usuarios</option>
+                            <option value="Area">Áreas</option>
+                            <option value="Category">Categorías</option>
+                            <option value="Repositorio">Repositorio</option>
+                            <option value="Ambiente">Ambientes</option>
+                            <option value="Reserva">Reservas de Ambiente</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button class="btn btn-sm btn-outline-secondary w-100 rounded-3 border-light" (click)="filtros.action=''; filtros.tipo=''; cargarLogs(1)" title="Reiniciar Vista">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-primary text-white small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3 fw-bold">Actor</th>
+                            <th class="py-3 fw-bold">Entidad</th>
+                            <th class="py-3 fw-bold">Acción</th>
+                            <th class="py-3 fw-bold text-center">Referencia</th>
+                            <th class="py-3 fw-bold">Fecha / Hora</th>
+                            <th class="text-end pe-4 py-3 fw-bold">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let log of logs;  let i = index">
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-circle rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold shadow-sm" 
+                                             style="width: 42px; height: 42px; font-size: 1.1rem;">
+                                            {{ log.user?.name?.charAt(0) || 'S' }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-primary-ums lh-1 mb-1">{{ log.user?.name || 'Sistema Automático' }}</div>
+                                            <div class="text-muted small" style="font-size: 0.7rem;"><i class="bi bi-geo-alt-fill me-1"></i>{{ log.ip_address }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-dark">{{ formatearEntidad(log.auditable_type) }}</span>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill border px-3 py-2" 
+                                          [ngClass]="log.action === 'deleted' ? 'badge-deleted' : getBadgeClass(log.action)">
+                                        <i class="bi me-1" [ngClass]="{
+                                            'bi-plus-circle-fill': log.action === 'created',
+                                            'bi-pencil-square': log.action === 'updated',
+                                            'bi-trash3-fill': log.action === 'deleted'
+                                        }"></i>
+                                        {{ log.action | uppercase }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="px-2 py-1 rounded bg-light border text-primary-ums fw-bold small">
+                                        ID {{ log.auditable_id }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="small text-dark fw-bold">{{ log.created_at | date:'dd/MM/yyyy' }}</div>
+                                    <div class="text-muted small">{{ log.created_at | date:'HH:mm:ss' }}</div>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-ums px-3" 
+                                            type="button" 
+                                            data-bs-toggle="collapse" 
+                                            [attr.data-bs-target]="'#detail' + i">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!--  -->
+                            <tr class="collapse" [id]="'detail' + i">
+                                <td colspan="6" class="p-0 border-0 bg-light">
+                                    <div class="detail-container p-4 bg-white m-3 rounded-4 shadow-sm border">
+                                        <div class="row">
+                               <div class="col-md-8">
+    <div class="d-flex align-items-center mb-3">
+        <i class="bi bi-file-earmark-diff text-guindo fs-4 me-2"></i>
+        <h6 class="fw-bold mb-0 text-primary-ums text-uppercase small">
+            {{ log.action === 'created' ? 'Datos del Nuevo Registro' : 'Historial de Cambios en Campos' }}
+        </h6>
+    </div>
+    
+    <div *ngIf="log.action === 'updated'" class="table-responsive border rounded-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="bg-light">
+                <tr class="small text-muted">
+                    <th class="ps-3">Atributo</th>
+                    <th>Estado Previo</th>
+                    <th>Estado Actual</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let campo of obtenerCamposCambiados(log)">
+                    <td class="fw-bold text-secondary small">{{ campo | uppercase }}</td>
+                    <td class="text-danger text-decoration-line-through small">
+                        {{ humanizarValor(campo, log.old_values ? log.old_values[campo] : null) }}
+                    </td>
+                    <td class="text-success fw-bold small">
+                        {{ humanizarValor(campo, log.new_values[campo]) }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div *ngIf="log.action === 'created'" class="table-responsive border rounded-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="bg-light">
+                <tr class="small text-muted">
+                    <th class="ps-3">Atributo</th>
+                    <th>Valor Inicial</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let campo of obtenerCamposCambiados(log)">
+                    <ng-container *ngIf="campo !== 'password'">
+                        <td class="fw-bold text-secondary small ps-3">{{ campo | uppercase }}</td>
+                        <td class="text-primary-ums fw-bold small">
+                            {{ humanizarValor(campo, log.new_values[campo]) }}
+                        </td>
+                    </ng-container>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+        <div *ngIf="log.action === 'restored'" class="table-responsive border rounded-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="bg-light">
+                <tr class="small text-muted">
+                    <th class="ps-3">Atributo</th>
+                    <th>Datos Restaurados</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let campo of obtenerCamposCambiados(log)">
+                    <ng-container *ngIf="campo !== 'password'">
+                        <td class="fw-bold text-secondary small ps-3">{{ campo | uppercase }}</td>
+                        <td class="text-primary-ums fw-bold small">
+                            {{ humanizarValor(campo, log.new_values[campo]) }}
+                        </td>
+                    </ng-container>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div *ngIf="log.action === 'deleted'" class="table-responsive border rounded-3">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="bg-light">
+                <tr class="small text-muted">
+                    <th class="ps-3">Atributo</th>
+                    <th>Ultimos Valores</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let campo of obtenerCamposCambiados(log)">
+                    <ng-container *ngIf="campo !== 'password'">
+                        <td class="fw-bold text-secondary small ps-3">{{ campo | uppercase }}</td>
+                        <td class="text-primary-ums fw-bold small">
+                            {{ humanizarValor(campo, log.old_values[campo]) }}
+                        </td>
+                    </ng-container>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    <div *ngIf="log.action === 'approved' || log.action === 'rejected'" class="table-responsive border rounded-3">
+    <table class="table table-sm align-middle mb-0">
+        <thead class="bg-light">
+            <tr class="small text-muted">
+                <th class="ps-3">Atributo</th>
+                <th>Estado Anterior</th>
+                <th>Estado Nuevo / Motivo</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="fw-bold text-secondary small ps-3">ESTADO</td>
+                <td class="text-danger text-decoration-line-through small">
+                    {{ humanizarValor('estado', log.old_values['estado']) }}
+                </td>
+                <td class="text-success fw-bold small">
+                    {{ humanizarValor('estado', log.new_values['estado']) }}
+                </td>
+            </tr>
+            
+            <tr *ngIf="log.action === 'rejected' && log.new_values['motivo_rechazo']">
+                <td class="fw-bold text-secondary small ps-3">MOTIVO DE RECHAZO</td>
+                <td class="text-muted small">---</td>
+                <td class="text-danger fw-bold small">
+                    {{ log.new_values['motivo_rechazo'] }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+
+            
+
+<div *ngIf="log.action === 'updated'" class="table-responsive bg-white rounded shadow-sm">
+    </div>
+</div>
+                                            
+                                            <div class="col-md-4 border-start">
+                                                <h6 class="fw-bold small text-uppercase text-muted mb-3">Información de Origen</h6>
+                                                <div class="p-3 rounded-3" style="background: #f8f9fa;">
+                                                    <div class="mb-3">
+                                                        <label class="d-block small fw-bold text-guindo mb-1">Dirección de Red</label>
+                                                        <code class="text-primary-ums">{{ log.ip_address }}</code>
+                                                    </div>
+                                                    <div>
+                                                        <label class="d-block small fw-bold text-guindo mb-1">Navegador / Cliente</label>
+                                                        <div class="text-muted" style="font-size: 0.7rem; line-height: 1.5;">
+                                                            {{ log.user_agent }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card-footer bg-white py-3 border-top-0 d-flex justify-content-between align-items-center" *ngIf="paginacion">
+                <div class="small text-muted">
+                    Total: <span class="fw-bold text-primary-ums">{{ paginacion.total }}</span> registros auditados.
+                </div>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item" [class.disabled]="paginaActual === 1">
+                            <button class="page-link border-0 text-primary-ums" (click)="cargarLogs(paginaActual - 1)"><i class="bi bi-chevron-left"></i></button>
+                        </li>
+                        <li class="page-item active"><span class="page-link bg-primary-ums border-0">{{ paginaActual }}</span></li>
+                        <li class="page-item" [class.disabled]="paginaActual === paginacion.last_page">
+                            <button class="page-link border-0 text-primary-ums" (click)="cargarLogs(paginaActual + 1)"><i class="bi bi-chevron-right"></i></button>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>

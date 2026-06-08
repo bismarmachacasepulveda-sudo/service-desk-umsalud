@@ -1,0 +1,145 @@
+<div class="container mt-4 mb-5 pb-5">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-lg border-bottom border-4" style="border-bottom-color: #800000 !important;">
+    <div>
+        <h3 class="fw-bold mb-1" style="color: #003366;">
+            <i class="bi bi-file-earmark-bar-graph-fill me-2" style="color: #800000;"></i>
+            Generador de Informes y Reportes
+        </h3>
+        <p class="text-muted mb-0 small">
+            Generación de documentos oficiales, indicadores de rendimiento y estadísticas institucionales.
+        </p>
+    </div>
+    
+
+</div>
+
+    <div class="card shadow-lg border-0 rounded-4 animate__animated animate__fadeInUp">
+        <div class="card-body p-lg-5">
+            
+            <div *ngIf="isLoadingData" class="text-center py-5">
+                <div class="spinner-grow" style="color: #003366;" role="status"></div>
+                <h6 class="mt-3 text-muted fw-bold">Preparando motor de reportes...</h6>
+            </div>
+            
+            <div *ngIf="!isLoadingData">
+                
+                <h5 class="fw-bold mb-3" style="color: #003366;"><i class="bi bi-1-circle-fill me-2"></i>Seleccione el Tipo de Documento</h5>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-2 shadow-sm transition-all" 
+                             style="cursor: pointer; border-radius: 12px;"
+                             [ngClass]="tipoReporte === 'actividades' ? 'border-primary bg-primary bg-opacity-10' : 'border-light bg-white'"
+                             (click)="tipoReporte = 'actividades'">
+                            <div class="card-body p-4 d-flex align-items-start">
+                                <div class="me-3 mt-1">
+                                    <input class="form-check-input fs-4"  type="radio" name="tipoReporte" [(ngModel)]="tipoReporte" value="actividades" style="cursor: pointer;">
+                                    <i class="bi bi-person-lines-fill fs-1" [ngClass]="tipoReporte === 'actividades' ? 'text-primary' : 'text-muted'"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" [ngClass]="tipoReporte === 'actividades' ? 'text-primary' : 'text-dark'">Informe de Actividades</h5>
+                                    <p class="small text-muted mb-0">Genera una lista detallada, formal y firmable de todas las atenciones realizadas por un técnico específico.</p>
+                                    <span class="badge bg-secondary mt-2"><i class="bi bi-person me-1"></i>Individual</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div *ngIf="isAdmin" class="col-md-6">
+                        <div class="card h-100 border-2 shadow-sm transition-all" 
+                             style="cursor: pointer; border-radius: 12px;"
+                             [ngClass]="tipoReporte === 'estadistico' ? 'border-danger bg-danger bg-opacity-10' : 'border-light bg-white'"
+                             (click)="tipoReporte = 'estadistico'">
+                            <div class="card-body p-4 d-flex align-items-start">
+                                <div class="me-3 mt-1">
+                                    <input class="form-check-input fs-4" type="radio" name="tipoReporte" [(ngModel)]="tipoReporte" value="estadistico" style="cursor: pointer;">
+                                    <i class="bi bi-pie-chart-fill fs-1" [ngClass]="tipoReporte === 'estadistico' ? 'text-danger' : 'text-muted'"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" [ngClass]="tipoReporte === 'estadistico' ? 'text-danger' : 'text-dark'">Reporte Estadístico Global</h5>
+                                    <p class="small text-muted mb-0">Consolida métricas gerenciales, rendimiento del equipo, gráficos de MTTR y uso de infraestructura.</p>
+                                    <span class="badge" style="background-color: #003366; margin-top: 8px;"><i class="bi bi-globe me-1"></i>Institucional</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-secondary opacity-25 mb-4">
+
+                <h5 class="fw-bold mb-4" style="color: #003366;"><i class="bi bi-2-circle-fill me-2"></i>Filtros y Parámetros</h5>
+
+                <div class="row g-4 bg-light p-4 rounded-4 border mb-4">
+                    
+                    <div class="col-lg-4 col-md-12" *ngIf="tipoReporte === 'actividades' && isAdmin">
+                        <label class="form-label small fw-bold text-uppercase text-muted"><i class="bi bi-person-badge me-1"></i>Funcionario / Técnico</label>
+                        <select class="form-select border-0 shadow-sm" [(ngModel)]="tecnicoId">
+                            <option [ngValue]="null" class="fw-bold text-primary">-- Generar mi propio informe --</option>
+                            <option *ngFor="let tech of tecnicos" [ngValue]="tech.id">{{ tech.name }}</option>
+                        </select>
+                        <div class="form-text small opacity-75">Seleccione a quién pertenece el informe.</div>
+                    </div>
+
+                    <div [ngClass]="(tipoReporte === 'actividades' && isAdmin) ? 'col-lg-4 col-md-6' : 'col-md-6'">
+                        <label class="form-label small fw-bold text-uppercase text-muted"><i class="bi bi-calendar-event me-1"></i>Fecha de Inicio</label>
+                        <input type="date" class="form-control border-0 shadow-sm" [(ngModel)]="fechaInicio">
+                    </div>
+                    
+                    <div [ngClass]="(tipoReporte === 'actividades' && isAdmin) ? 'col-lg-4 col-md-6' : 'col-md-6'">
+                        <label class="form-label small fw-bold text-uppercase text-muted"><i class="bi bi-calendar-event-fill me-1"></i>Fecha de Fin</label>
+                        <input type="date" class="form-control border-0 shadow-sm" [(ngModel)]="fechaFin">
+                    </div>
+                </div>
+
+                <div class="animate__animated animate__fadeIn" *ngIf="tipoReporte === 'actividades'">
+                    <h5 class="fw-bold mb-3" style="color: #003366;"><i class="bi bi-3-circle-fill me-2"></i>Autoridades de Destino</h5>
+                    <div class="bg-white p-4 rounded-4 border shadow-sm mb-4 border-start border-4" style="border-left-color: #800000 !important;">
+                        <p class="small text-muted mb-3"><i class="bi bi-info-circle me-1"></i>Estos nombres aparecerán en el encabezado formal de la carta del PDF.</p>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nombre del Decano (Destinatario Principal)</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-light border-0">A:</span>
+                                    <input type="text" class="form-control border-0" [(ngModel)]="nombreDecano" placeholder="Ej: Dr. Javier Peñaranda...">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nombre del Jefe Inmediato (Vía)</label>
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-light border-0">VÍA:</span>
+                                    <input type="text" class="form-control border-0" [(ngModel)]="nombreJefe" placeholder="Ej: Lic. Florencio Mamani...">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-column flex-md-row justify-content-end gap-3 mt-5 pt-3 border-top">
+                    
+                    <button class="btn btn-lg px-4 d-flex align-items-center justify-content-center shadow-sm hover-lift" 
+                            style="background-color: #198754; color: white; border: none;"
+                            (click)="descargarExcel()" [disabled]="isExporting || isGenerating">
+                        <span *ngIf="isExporting" class="spinner-border spinner-border-sm me-2"></span>
+                        <i *ngIf="!isExporting" class="bi bi-file-earmark-excel-fill me-2 fs-5"></i>
+                        {{ isExporting ? 'Procesando Excel...' : 'Descargar en Excel' }}
+                    </button>
+
+                    <button class="btn btn-lg px-5 d-flex align-items-center justify-content-center shadow" 
+                            style="background-color: #800000; color: white; border: none;"
+                            (click)="generarReporte()" [disabled]="isGenerating || isExporting">
+                        <span *ngIf="isGenerating" class="spinner-border spinner-border-sm me-2"></span>
+                        <i *ngIf="!isGenerating" class="bi bi-file-pdf-fill me-2 fs-5"></i>
+                        {{ isGenerating ? 'Generando PDF...' : 'Generar PDF Formal' }}
+                    </button>
+
+                </div>
+
+            </div> </div>
+    </div>
+</div>
+
+<style>
+    .transition-all { transition: all 0.2s ease-in-out; }
+    .hover-lift:hover { transform: translateY(-2px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
+</style>

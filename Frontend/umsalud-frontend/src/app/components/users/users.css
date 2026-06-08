@@ -1,0 +1,102 @@
+/* Admin: Elegancia y Control */
+.role-admin {
+    background-color: #bb0303 !important;
+    color: #ffffff !important;
+    border: 1px solid #7b7b7a !important;
+}
+
+/* Técnico: Energía y Servicio */
+.role-tecnico {
+    background-color: #030179de !important;
+    color: #ffffff !important;
+    border: 1px solid #696969 !important;
+}
+
+/* Usuario: Simplicidad */
+.role-usuario {
+    background-color: #029410 !important;
+    color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+/* Efecto al pasar el mouse (opcional para tu tesis) */
+.badge:hover {
+    filter: brightness(0.95);
+    transition: all 0.2s;
+}
+
+/* Contenedor principal de pestañas */
+.custom-tabs {
+    border-bottom: 2px solid #e9ecef;
+    gap: 1.5rem;
+}
+
+.custom-tabs .nav-item {
+    margin-bottom: -2px; /* Alinea con el borde inferior */
+}
+
+.custom-tabs .nav-link {
+    border: none;
+    padding: 0.75rem 0.5rem;
+    transition: all 0.3s ease;
+    position: relative;
+    color: #6c757d;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+/* Contenedor interno para alinear icono y texto */
+.tab-content-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+
+.custom-tabs .nav-link:hover .tab-content-wrapper {
+    background-color: #f8f9fa;
+    color: #333;
+}
+
+/* Indicador de línea inferior (Animado) */
+.custom-tabs .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    transition: width 0.3s ease;
+    border-radius: 3px 3px 0 0;
+}
+
+.custom-tabs .nav-link.active::after {
+    width: 100%;
+}
+
+/* --- VARIANTES DE COLOR --- */
+
+/* Azul Institucional (Activos) */
+.tab-blue.active { color: #003366 !important; }
+.tab-blue.active::after { background-color: #003366; }
+
+/* Rojo Alerta (Pendientes) */
+.tab-red.active { color: #D32F2F !important; }
+.tab-red.active::after { background-color: #D32F2F; }
+
+/* Gris Neutral (Historial) */
+.tab-gray.active { color: #495057 !important; }
+.tab-gray.active::after { background-color: #495057; }
+
+/* Badge Personalizado */
+.badge-count {
+    background-color: #D32F2F;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 50rem;
+    margin-left: 0.5rem;
+    box-shadow: 0 2px 4px rgba(211, 47, 47, 0.3);
+}

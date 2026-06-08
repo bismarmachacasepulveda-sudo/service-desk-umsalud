@@ -1,0 +1,643 @@
+<div class="container mt-3 mb-4">
+   <div class="mb-2">
+    <button class="btn btn-link text-decoration-none text-secondary fw-bold px-0" 
+            (click)="goBack()" 
+            style="transition: color 0.2s;">
+        <i class="bi bi-arrow-left-circle-fill me-2 fs-5 align-middle"></i>
+        <span class="align-middle">Volver a la lista</span>
+    </button>
+</div> 
+    <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <div class="card shadow-sm border-0" *ngIf="ticket && !isLoading">
+        
+<div class="header-umsalud-gradient bg-white d-flex justify-content-between align-items-center py-3 border-bottom" >
+    
+    <h4 class="mb-0 fw-bold" style="color: #ffffff;">
+        <i class="bi bi-ticket-detailed me-2"></i>Ticket #{{ ticket.id }}
+    </h4>
+    <!-- Etiqueta de estado -->
+    <span class="badge rounded-pill px-3 py-2 shadow-sm" 
+          [ngClass]="{
+              'bg-danger': ticket.status === 'abierto',
+              'bg-warning text-dark': ticket.status === 'en_proceso',
+              'bg-secondary': ticket.status === 'en_espera',
+              'bg-success': ticket.status === 'resuelto',
+              'bg-dark': ticket.status === 'cerrado'
+          }">
+        {{ ticket.status.replace('_', ' ') | uppercase }}
+    </span>
+</div>
+        
+        <div class="card-umsalud-prosn p-4">
+            <div class="row">
+                
+                <div class="col-md-8">
+                    <h5 class="fw-bold mb-3">{{ ticket.subject }}</h5>
+                    <!--  -->
+<div *ngIf="ticket" class="card border-0 border-start border-4 border-primary shadow-sm mb-4 bg-light">
+    <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-2">
+            <i class="bi bi-file-earmark-text-fill text-primary fs-5 me-2"></i>
+            <h6 class="text-primary fw-bold text-uppercase mb-0" style="letter-spacing: 0.5px; font-size: 0.75rem;">
+                Descripción del Incidente
+            </h6>
+        </div>
+        
+        <div class="text-dark" style="font-size: 0.95rem; white-space: pre-wrap; line-height: 1.6;">
+            {{ ticket.description || 'Sin descripción detallada provided.' }}
+        </div>
+    </div>
+</div>
+                    <!-- Evidencia Adjunta -->
+                    <div *ngIf="ticket.ruta_archivo" class="mb-4">
+                        <h6 class="fw-bold text-secondary"><i class="bi bi-paperclip"></i> Evidencia Adjunta</h6>
+                        
+                        <div *ngIf="esImagen(ticket.ruta_archivo)" class="mb-2">
+                            <img [src]="'http://192.168.1.50:8000/storage/' + ticket.ruta_archivo" 
+                                 class="img-fluid rounded border shadow-sm" 
+                                 style="max-height: 300px;" alt="Evidencia">
+                        </div>
+                        
+                        <a [href]="'http://192.168.1.50:8000/storage/' + ticket.ruta_archivo" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download me-1"></i> 
+                            Descargar {{ ticket.nombre_archivo || 'Archivo Adjunto' }}
+                        </a>
+                    </div>
+                    <!-- Chat -->
+                    <div class="mt-5">
+                        <app-chat [ticketId]="ticket.id"></app-chat>
+                    </div>
+                    <!-- Sección de Solución -->
+                    <div *ngIf="ticket.status === 'cerrado'" class="alert alert-success mt-4">
+                        <h6 class="alert-heading fw-bold"><i class="bi bi-check-circle-fill"></i> Solución Registrada</h6>
+                        <hr>
+                        <p><strong>Diagnóstico:</strong> {{ ticket.solution_notes }}</p>
+                        <div class="d-flex justify-content-between small">
+                            <span><strong>Tiempo:</strong> {{ ticket.minutes_spent }} min</span>
+                            <span><strong>Categoría:</strong> {{ ticket.category?.name }}</span>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+                <div class="col-md-4">
+                    <div class="card-umsalud-prosn">
+                        <div class="card-body">
+                            <h6 class="fw-bold text-muted mb-3">INFORMACIÓN ADICIONAL</h6>
+                            
+<div class="d-flex flex-column gap-3">
+    
+    <div class="row g-2">
+        <div class="col-6">
+            <div class="p-2 border rounded-3 bg-light h-100 text-center">
+                <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                    Prioridad
+                </small>
+
+
+  <div class="mb-3">
+    
+    <div *ngIf="isUserFinal () || isTechnician () || ticket.status == 'cerrado' && isAdmin()">
+        <span class="badge" [ngClass]="getPriorityClass(ticket.priority)">
+        <i class="bi bi-exclamation-triangle-fill me-1" *ngIf="ticket.priority === 'critica'"></i>
+            {{ ticket.priority | uppercase }}
+        </span>
+    </div>
+
+    <div class="dropdown" *ngIf="ticket.status !== 'cerrado' && isAdmin() ">
+        <button class="btn btn-sm w-100 d-flex justify-content-between align-items-center border shadow-sm" 
+                type="button" data-bs-toggle="dropdown" [disabled]="isUpdatingPriority">
+            <span class="badge" [ngClass]="getPriorityClass(ticket.priority)">
+                <i class="bi bi-exclamation-triangle-fill me-1" *ngIf="ticket.priority === 'critica'"></i>
+                {{ ticket.priority | uppercase }}
+            </span>
+            <i class="bi bi-chevron-down small ms-2"></i>
+        </button>
+        <ul class="dropdown-menu shadow w-100">
+            <li><a class="dropdown-item small" (click)="cambiarPrioridad('baja')"><span class="badge bg-success me-2">BAJA</span> Rutinario</a></li>
+            <li><a class="dropdown-item small" (click)="cambiarPrioridad('media')"><span class="badge bg-warning me-2 text-dark">MEDIA</span> Importante</a></li>
+            <li><a class="dropdown-item small" (click)="cambiarPrioridad('alta')"><span class="badge bg-danger me-2 text-dark">ALTA</span> Urgente</a></li>
+            <li><a class="dropdown-item d-flex align-items-center py-2" (click)="cambiarPrioridad('critica')"><span class="badge" [ngClass]="getPriorityClass(ticket.priority)">Critica</span><span class="text-wrap" style="font-size: 0.85rem;">Interrupción total</span> </a>
+    </li>
+        </ul>
+    </div>
+</div>
+
+
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-2 border rounded-3 bg-light h-100 text-center">
+                <small class="d-block text-muted text-uppercase fw-bold" style="font-size: 0.65rem; letter-spacing: 0.5px;">
+                    Area/Ubicación
+                </small>
+                <div class="d-flex align-items-center justify-content-center mt-1 text-dark">
+                    <i class="bi bi-geo-alt-fill text-danger me-1"></i>
+                    <strong class="text-truncate" style="font-size: 0.85rem;" title="{{ ticket.area?.name }}">
+                        {{ ticket.area?.name || 'N/A' }}
+                    </strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex align-items-center p-3 border rounded-3 shadow-sm bg-white">
+        <div class="position-relative">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm" 
+                 style="width: 45px; height: 45px; font-size: 1.2rem;">
+                {{ ticket.user?.name?.charAt(0) }}
+            </div>
+            <span class="position-absolute bottom-0 start-100 translate-middle badge border border-light rounded-circle bg-dark p-1" 
+                  title="Rol: {{ ticket.user?.role }}">
+                <i class="bi bi-person-fill" style="font-size: 0.6rem;"></i>
+            </span>
+        </div>
+        <div class="ms-3 overflow-hidden">
+            <small class="text-muted d-block" style="font-size: 0.7rem;">Solicitado por:</small>
+            <h6 class="mb-0 fw-bold text-truncate">{{ ticket.user?.name }}</h6>
+            <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-10 rounded-pill" 
+                  style="font-size: 0.65rem;">
+                {{ ticket.user?.role | uppercase }}
+            </span>
+        </div>
+    </div>
+
+    <div class="py-2">
+        <small class="d-block text-muted text-uppercase fw-bold mb-2 ps-1" style="font-size: 0.7rem;">
+            Datos de Contacto
+        </small>
+        
+        <ul class="list-group list-group-flush rounded-3 border">
+            <li class="list-group-item d-flex align-items-center py-2 px-3">
+                <div class="icon-square bg-light text-primary rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-envelope"></i>
+                </div>
+                <div class="overflow-hidden">
+                    <small class="d-block text-muted" style="line-height: 1;">Correo</small>
+                    <a href="mailto:{{ ticket.user?.email }}" class="text-decoration-none text-dark fw-semibold text-truncate d-block" style="font-size: 0.9rem;">
+                        {{ ticket.user?.email || 'Sin correo' }}
+                    </a>
+                </div>
+            </li>
+            <li class="list-group-item d-flex align-items-center py-2 px-3">
+                <div class="icon-square bg-light text-success rounded-circle me-3 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                    <i class="bi bi-whatsapp"></i>
+                </div>
+                <div>
+                    <small class="d-block text-muted" style="line-height: 1;">Teléfono / WhatsApp</small>
+                    <span *ngIf="ticket.user?.phone" class="fw-semibold text-dark" style="font-size: 0.9rem;">
+                        {{ ticket.user?.phone }}
+                    </span>
+                    <span *ngIf="!ticket.user?.phone" class="text-muted small fst-italic">No registrado</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-bold text-muted small text-uppercase">
+            Responsables
+        </div>
+        <div class="card-body">
+            
+            <div class="mb-3">
+                <label class="small text-muted d-block mb-1">Agente Principal</label>
+                <div *ngIf="ticket.assigned_to; else sinAsignar" class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" 
+                         style="width: 40px; height: 40px;">
+                        {{ ticket.assigned_user?.name?.charAt(0) }}
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark lh-1">{{ ticket.assigned_user?.name }}</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">Responsable</small>
+                    </div>
+                </div>
+                <ng-template #sinAsignar>
+                    <div class="text-muted fst-italic small">
+                        <i class="bi bi-person-dash me-1"></i> Sin asignar
+                    </div>
+                </ng-template>
+                
+            </div>
+<div class="d-grid gap-2 mb-3" *ngIf="isAdmin() && ticket.status !== 'cerrado'">
+    <button class="btn btn-primary d-flex align-items-center justify-content-center py-2 shadow-sm" 
+            (click)="openAssignModal()">
+        <i class="bi" [ngClass]="ticket.assigned_to ? 'bi-person-gear-fill' : 'bi-person-plus-fill'"></i>
+        <span class="ms-2">
+            {{ ticket.assigned_to ? 'Reasignar Ticket' : 'Asignar Técnico' }}
+        </span>
+    </button>
+</div>
+            <div class="pt-3 border-top" *ngIf="ticket.assigned_to"> 
+                <label class="small text-muted d-block mb-1">
+                    Colaboración / Apoyo
+                    <i class="bi bi-info-circle ms-1" title="Técnico secundario que ayuda en el caso"></i>
+                </label>
+
+                <div *ngIf="ticket.colaborador; else botonAddColaborador" class="d-flex align-items-center justify-content-between p-2 rounded bg-light border">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center me-2" 
+                             style="width: 32px; height: 32px; font-size: 0.8rem;">
+                            {{ ticket.colaborador?.name?.charAt(0) }}
+                        </div>
+                        <div class="lh-1">
+                            <div class="fw-bold text-dark small">{{ ticket.colaborador?.name }}</div>
+                            <small class="text-muted" style="font-size: 0.7rem;">Apoyo</small>
+                        </div>
+                    </div>
+                    
+                    <button *ngIf="canManageCollaborator()" 
+                            type="button"
+                            class="btn btn-link text-danger p-0" 
+                            (click)="removeCollaborator()"
+                            title="Quitar colaborador">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
+                </div>
+
+                <ng-template #botonAddColaborador>
+                    <button *ngIf="canManageCollaborator()" 
+                            type="button" 
+                            class="btn btn-outline-secondary btn-sm w-100 border-dashed" 
+                            (click)="openCollaboratorModal()">
+                        <i class="bi bi-person-plus-fill me-2"></i> Añadir Apoyo
+                    </button>
+                    <small *ngIf="!canManageCollaborator()" class="text-muted fst-italic d-block mt-1">
+                        Sin colaboradores extra.
+                    </small>
+                </ng-template>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center px-2">
+        <small class="text-muted">Creación del reporte:</small>
+        <small class="fw-bold text-dark">
+            <i class="bi bi-calendar3 me-1 text-secondary"></i>
+            {{ ticket.created_at | date:'dd MMM yyyy' }} 
+            <span class="text-muted fw-normal">{{ ticket.created_at | date:'HH:mm' }}</span>
+        </small>
+    </div>
+
+    </div>
+
+ <div class="card bg-light border-0">
+    <div class="card-body">
+<div *ngIf="canManageTicket()" class="mb-3">
+            <hr>
+            <label class="small fw-bold text-muted mb-2">Acciones Técnicas:</label>
+            
+            <div *ngIf="ticket.status !== 'cerrado'" class="d-grid gap-2">
+                
+                <button *ngIf="ticket.status === 'abierto'" 
+                        class="btn btn-warning btn-sm fw-bold" 
+                        (click)="tomarTicket()">
+                    <i class="bi bi-play-fill"></i> Empezar Trabajo
+                </button>
+
+                <button *ngIf="ticket.status === 'en_proceso'" 
+                        class="btn btn-info btn-sm text-white" 
+                        (click)="cambiarEstado('en_espera')">
+                    <i class="bi bi-pause-fill"></i> Poner en Espera
+                </button>
+                <button *ngIf="ticket.status === 'en_espera'" 
+                        class="btn btn-warning btn-sm" 
+                        (click)="cambiarEstado('en_proceso')">
+                    <i class="bi bi-play-fill"></i> Reanudar
+                </button>
+
+                <button *ngIf="(ticket.status === 'en_proceso' || ticket.status === 'en_espera') && !isClosing" 
+                        class="btn btn-success btn-sm fw-bold" 
+                        (click)="abrirFormularioResolucion()">
+                    <i class="bi bi-check-lg"></i> Registrar Solución
+                </button>
+
+                <button *ngIf="ticket.status === 'resuelto'" 
+                        class="btn btn-secondary btn-sm" 
+                        (click)="cerrarTicketDirecto()"
+                        title="Usar si el usuario no responde">
+                    <i class="bi bi-archive-fill"></i> Forzar Cierre
+                </button>
+                <button *ngIf="ticket.assigned_to && ticket.status !== 'resuelto'" 
+                class="btn btn-outline-danger btn-sm mt-2" 
+                (click)="liberarTicket()"
+                [disabled]="isLoading">
+            <i class="bi bi-person-x me-1"></i> Liberar Ticket
+        </button>
+            </div>
+
+            <div *ngIf="ticket.status === 'cerrado'" class="alert alert-secondary text-center py-2 mb-0 shadow-sm border-secondary">
+                <small class="fw-bold text-muted">
+                    <i class="bi bi-lock-fill me-1"></i> TICKET CERRADO Y ARCHIVADO
+                </small>
+            </div>
+            <!--  -->
+            <div class="d-grid gap-2 mt-3 pt-3 border-top" *ngIf="isAdmin()">
+
+    <button class="btn btn-outline-danger btn-sm d-flex align-items-center justify-content-center py-2" 
+            (click)="deleteTicketFromDetail()"
+            [disabled]="isLoading">
+        <i class="bi" [ngClass]="isLoading ? 'spinner-border spinner-border-sm me-2' : 'bi-trash3-fill me-2'"></i>
+        {{ isLoading ? 'Eliminando...' : 'Eliminar Ticket' }}
+    </button>
+    
+    <p class="text-muted mb-0" style="font-size: 0.65rem;">
+        * Solo administradores pueden realizar esta acción. El ticket se moverá a la papelera.
+    </p>
+</div>
+            
+        </div>
+        <!-- Aviso de quien gestiona el ticket -->
+        <div *ngIf="isTechnicianOrAdmin() && !canManageTicket()" class="alert alert-light border text-center mt-3">
+            <small class="text-muted">
+                <i class="bi bi-lock-fill"></i> Gestionado por <strong>{{ ticket.assigned_user?.name }}</strong>
+            </small>
+        </div>
+<!-- auditoria -->
+ <div *ngIf="isTechnicianOrAdmin()" class="accordion accordion-flush mt-auto pt-3 border-top" id="accordionAuditoria">
+    <div class="accordion-item bg-transparent">
+        <h2 class="accordion-header" id="headingAudit">
+            <button class="accordion-button collapsed bg-transparent shadow-none px-0 py-2 fw-bold text-muted d-flex align-items-center" 
+                    type="button" 
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#collapseAudit" 
+                    aria-expanded="false" 
+                    style="font-size: 0.85rem;">
+                <i class="bi bi-activity me-2"></i> TRAZABILIDAD Y AUDITORÍA
+            </button>
+        </h2>
+        <div id="collapseAudit" class="accordion-collapse collapse" data-bs-parent="#accordionAuditoria">
+            <div class="accordion-body px-0 py-2 small">
+                
+                <div class="mb-3 position-relative ps-3 border-start border-3 border-primary bg-light rounded-end py-1">
+                    <span class="d-block text-primary text-uppercase fw-bold" style="font-size: 0.65rem;">
+                        <i class="bi bi-plus-circle-fill me-1"></i>Creado por
+                    </span>
+                    <div class="fw-bold text-dark text-truncate">
+                        {{ ticket.creator?.name || 'Sistema/Usuario' }}
+                    </div>
+                    <div class="text-muted fst-italic" style="font-size: 0.7rem;">
+                        {{ ticket.created_at | date:'dd MMM, HH:mm' }}
+                    </div>
+                </div>
+
+                <div *ngIf="ticket.assigned_to" class="mb-3 position-relative ps-3 border-start border-3 border-warning bg-light rounded-end py-1">
+                    <span class="d-block text-warning text-uppercase fw-bold" style="font-size: 0.65rem;">
+                        <i class="bi bi-person-fill-gear me-1"></i>Asignación
+                    </span>
+                    
+                    <div *ngIf="ticket.assigned_by_id === ticket.assigned_to" class="text-dark">
+                        <span class="badge bg-warning text-dark border border-warning">Autoasignación</span>
+                        <div class="small text-muted mt-1">Tomado de Bolsa de Trabajo</div>
+                    </div>
+                    
+                    <div *ngIf="ticket.assigned_by_id && ticket.assigned_by_id !== ticket.assigned_to" class="text-dark">
+                        <span class="fw-bold">{{ ticket.assigner?.name }}</span>
+                        <div class="small text-muted">Delegó el ticket</div>
+                    </div>
+
+                    <div *ngIf="!ticket.assigned_by_id" class="text-muted fst-italic">
+                        Asignación Directa
+                    </div>
+                </div>
+
+                <div *ngIf="ticket.colaborador" class="mb-3 position-relative ps-3 border-start border-3 border-info bg-light rounded-end py-1">
+                    <span class="d-block text-info text-uppercase fw-bold" style="font-size: 0.65rem;">
+                        <i class="bi bi-people-fill me-1"></i>Colaboración
+                    </span>
+                    <div class="fw-bold text-dark">{{ ticket.colaborador?.name }}</div>
+                    <div class="small text-muted">Soporte secundario</div>
+                </div>
+
+                <div *ngIf="ticket.status === 'resuelto' || ticket.status === 'cerrado'" 
+                     class="mb-3 position-relative ps-3 border-start border-3 border-success bg-light rounded-end py-1">
+                    
+                    <div *ngIf="ticket.status === 'resuelto'">
+                        <span class="d-block text-success text-uppercase fw-bold" style="font-size: 0.65rem;">
+                            <i class="bi bi-check-circle me-1"></i>Estado Actual
+                        </span>
+                        <div class="text-success fw-bold">
+                            <span class="spinner-grow spinner-grow-sm me-1" style="width: 0.5rem; height: 0.5rem;"></span>
+                            Esperando Visto Bueno
+                        </div>
+                    </div>
+
+                    <div *ngIf="ticket.status === 'cerrado'">
+                        <span class="d-block text-success text-uppercase fw-bold" style="font-size: 0.65rem;">
+                            <i class="bi bi-lock-fill me-1"></i>Cierre Definitivo
+                        </span>
+                        <div class="fw-bold text-dark">
+                            {{ ticket.closer?.name || 'Sistema Automático' }}
+                        </div>
+                        <div class="text-muted small" *ngIf="ticket.closer?.id === ticket.user_id">
+                            (Confirmado por Usuario)
+                        </div>
+                        <div class="text-muted small" *ngIf="ticket.closer?.role === 'admin' || ticket.closer?.role === 'tecnico'">
+                            (Cierre Administrativo)
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end pt-2 border-top mt-2">
+                    <small class="text-muted d-block" style="font-size: 0.65rem;">Última actividad:</small>
+                    <div class="fw-bold text-secondary" style="font-size: 0.75rem;">
+                        <i class="bi bi-pencil-fill me-1" style="font-size: 0.7rem;"></i>
+                        {{ ticket.editor?.name || 'Sistema' }}
+                    </div>
+                    <small class="text-muted fst-italic" style="font-size: 0.7rem;">
+                        {{ ticket.updated_at | date:'short' }}
+                    </small>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+        <div *ngIf="isUserFinal() && ticket.status === 'resuelto'" class="alert alert-success text-center mt-3 shadow-sm border-success">
+            <h6 class="fw-bold"><i class="bi bi-check-circle-fill"></i> ¿Problema Resuelto?</h6>
+            <p class="small mb-3">El Agente asigando indica que ha solucionado el incidente.</p>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-success fw-bold" (click)="cerrarTicketDirecto()">
+                    ✅ Sí, Confirmar y Cerrar
+                </button>
+                <button class="btn btn-outline-danger btn-sm" (click)="reabrirTicket()">
+                    ❌ No, Sigue Fallando
+                </button>
+            </div>
+        </div>
+        <!-- INFORME TÉCNICO -->
+        <div *ngIf="isClosing" class="card mt-3 border-success shadow animate__animated animate__fadeIn">
+            <div class="card-header bg-success text-white fw-bold small">
+                📝 Informe Técnico de Solución
+            </div>
+            <div class="card-body p-3">
+                <form (ngSubmit)="confirmClose()">
+                    <div class="mb-2">
+                        <label class="small fw-bold">Diagnóstico y Solución *</label>
+                        <textarea class="form-control form-control-sm" [(ngModel)]="closureData.solution_notes" name="sol" rows="3" required></textarea>
+                    </div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <label class="small fw-bold">Tiempo (min) *</label>
+                            <input type="number" class="form-control form-control-sm" [(ngModel)]="closureData.minutes_spent" name="min" required>
+                        </div>
+                        <div class="col-6">
+                            <label class="small fw-bold">Categoría Real *</label>
+                            <select class="form-select form-select-sm" [(ngModel)]="closureData.category_id" name="cat" required>
+                                <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        <button type="button" class="btn btn-light btn-sm me-2 border" (click)="isClosing=false">Cancelar</button>
+                        <button type="submit" class="btn btn-success btn-sm">Guardar y Marcar Resuelto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div *ngIf="isUserFinal()" class="mt-3 text-center">
+             <div *ngIf="ticket.status === 'resuelto'" class="alert alert-success small">
+                <strong>¡Solucionado!</strong><br>
+                El Agente ha marcado este problema como resuelto.
+             </div>
+        </div>
+
+    </div>
+</div>
+<!-- BOTON DE CANCELAR PARA USUARIO -->
+<div class="card border-0 bg-light rounded-3 mt-4" *ngIf="isUserFinal() && (ticket.status === 'abierto' || ticket.status === 'en_proceso' || ticket.status === 'en_espera')">
+    <div class="card-body p-3 text-center">
+        <h6 class="fw-bold text-muted small mb-2">¿Ya no requieres asistencia?</h6>
+        <p class="text-muted small mb-3" style="font-size: 0.75rem;">
+            Si el problema se solucionó o fue un error, puedes retirar la solicitud.
+        </p>
+        <button class="btn btn-outline-danger btn-sm w-100 fw-bold shadow-sm" (click)="cancelTicketByUser()">
+            <i class="bi bi-x-circle-fill me-2"></i>Retirar Solicitud
+        </button>
+    </div>
+</div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal colaboradores -->
+
+<div class="modal fade" 
+     [class.show]="showCollaboratorModal" 
+     [style.display]="showCollaboratorModal ? 'block' : 'none'" 
+     tabindex="-1" 
+     role="dialog"
+     style="background-color: rgba(0,0,0,0.5);"> <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow-lg">
+            
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-people-fill me-2"></i>Añadir Apoyo Técnico
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="closeCollaboratorModal()"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+
+                <div class="alert alert-info border-0 d-flex align-items-center mb-4">
+                    <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+                    <div class="small">
+                        El colaborador recibirá notificaciones y podrá ver este ticket en su lista, pero la responsabilidad principal sigue siendo tuya.
+                    </div>
+                </div>
+
+                <label class="form-label fw-bold text-muted small">Seleccione un Agente disponible:</label>
+                
+                <select class="form-select form-select-lg" [(ngModel)]="selectedCollaboratorId">
+                    <option [ngValue]="null" disabled selected>-- Buscar Agente --</option>
+                    <option *ngFor="let tech of tecnicosDisponibles" [ngValue]="tech.id">
+                        {{ tech.name }} ({{ tech.expertise || 'General' }})
+                    </option>
+                </select>
+
+                <div *ngIf="tecnicosDisponibles.length === 0" class="text-center text-muted mt-3 small">
+                    No hay otros Agentes disponibles.
+                </div>
+            </div>
+            
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary" (click)="closeCollaboratorModal()">
+                    Cancelar
+                </button>
+                <button type="button" 
+                        class="btn btn-primary fw-bold px-4" 
+                        [disabled]="!selectedCollaboratorId || isSavingCollaborator"
+                        (click)="assignCollaborator()">
+                    <span *ngIf="isSavingCollaborator" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ isSavingCollaborator ? 'Guardando...' : 'Asignar Ahora' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal RE-ASIGNAR -->
+<div class="modal fade" [class.show]="showAssignModal" [style.display]="showAssignModal ? 'block' : 'none'" 
+     tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px);">
+    
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            
+            <div class="modal-header border-0 bg-primary text-white py-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi" [ngClass]="ticket.assigned_to ? 'bi-person-gear-fill' : 'bi-person-plus-fill'"></i>
+                    {{ ticket.assigned_to ? 'Reasignar Responsable' : 'Asignar Responsable' }}
+                </h5>
+                <button type="button" class="btn-close btn-close-white" (click)="showAssignModal = false"></button>
+            </div>
+            
+            <div class="modal-body p-4">
+                <p class="text-muted small mb-4">
+                    {{ ticket.assigned_to 
+                        ? 'Seleccione al nuevo técnico que se hará cargo de este incidente. El responsable anterior será notificado.' 
+                        : 'Seleccione al técnico encargado de resolver este reporte. El ticket pasará a estado "En Proceso" automáticamente.' 
+                    }}
+                </p>
+
+                <div class="form-group">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Personal Técnico Disponible</label>
+                    <select class="form-select form-select-lg border-2" [(ngModel)]="selectedTechId" style="border-color: #e0e0e0;">
+                        <option [ngValue]="null" disabled selected>-- Seleccionar Técnico --</option>
+                        <option *ngFor="let tech of tecnicosParaAsignar" [ngValue]="tech.id">
+                            {{ tech.name }} — {{ tech.expertise || 'Soporte General' }}
+                        </option>
+                    </select>
+                </div>
+
+                <div *ngIf="tecnicosParaAsignar.length === 0" class="alert alert-warning mt-3 border-0 small">
+                    <i class="bi bi-exclamation-triangle me-2"></i> No hay otros técnicos disponibles para asignar en este momento.
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0 bg-light p-3">
+                <button type="button" class="btn btn-light px-4 fw-bold" (click)="showAssignModal = false">Cancelar</button>
+                <button type="button" 
+                        class="btn btn-primary px-4 fw-bold shadow-sm" 
+                        [disabled]="!selectedTechId || isAssigning"
+                        (click)="confirmAssignment()">
+                    <span *ngIf="isAssigning" class="spinner-border spinner-border-sm me-2"></span>
+                    {{ ticket.assigned_to ? 'Confirmar Reasignación' : 'Confirmar Asignación' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

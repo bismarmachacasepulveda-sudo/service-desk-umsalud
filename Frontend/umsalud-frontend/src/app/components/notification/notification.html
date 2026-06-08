@@ -1,0 +1,96 @@
+<div class="position-relative d-inline-block">
+    
+    <button class="btn btn-link text-decoration-none p-0 border-0 notification-container" 
+            (click)="toggleMenu()"
+            style="color: inherit;">
+        
+        <ng-container *ngIf="{ val: (unreadCount$ | async) } as countObject">
+            
+            <i class="bi bi-bell-fill bell-icon" 
+               [class.ringing]="(countObject.val ?? 0) > 0">
+            </i>
+
+            <span class="badge bg-danger badge-float" 
+                  *ngIf="(countObject.val ?? 0) > 0">
+                {{ (countObject.val ?? 0) > 99 ? '+99' : countObject.val }}
+            </span>
+
+        </ng-container>
+    </button>
+
+    <div *ngIf="isOpen" 
+         style="position: fixed; top:0; left:0; width: 100vw; height: 100vh; z-index: 1040; cursor: default;" 
+         (click)="isOpen = false">
+    </div>
+
+    <div *ngIf="isOpen" 
+         class="dropdown-menu show shadow-lg border-0 p-0" 
+         style="position: absolute; right: 0; top: 40px; width: 340px; z-index: 1050;">
+        
+        <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top">
+            <small class="fw-bold text-dark">NOTIFICACIONES</small>
+            <button class="btn btn-link btn-sm text-decoration-none p-0" 
+                    style="font-size: 0.8rem;" 
+                    (click)="marcarTodas()">
+                Marcar todas leídas
+            </button>
+        </div>
+
+        <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
+            
+            <button *ngFor="let noti of notifications" 
+                    class="list-group-item list-group-item-action p-3 border-bottom"
+                    [ngClass]="{'bg-white': noti.read_at, 'bg-primary bg-opacity-10': !noti.read_at}"
+                    (click)="irANotificacion(noti)">
+                
+                <div class="d-flex align-items-start gap-3">
+
+                    <ng-container *ngIf="esMensajeChat(noti); else systemNoti">
+                        <div class="avatar-circle bg-primary text-white flex-shrink-0 shadow-sm">
+                            {{ noti.data.sender_name ? (noti.data.sender_name | slice:0:1) : 'U' }}
+                        </div>
+                        
+                        <div class="w-100 overflow-hidden">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold text-dark small">{{ noti.data.sender_name }}</span>
+                                <small class="text-muted" style="font-size: 0.7rem;">
+                                    {{ noti.created_at | date:'shortTime' }}
+                                </small>
+                            </div>
+                            <p class="mb-0 small text-secondary text-truncate">
+                                <i class="bi bi-chat-left-text me-1"></i>
+                                {{ noti.data.message }}
+                            </p>
+                        </div>
+                    </ng-container>
+
+                    <ng-template #systemNoti>
+                        <div class="mt-1 flex-shrink-0 text-primary">
+                            <i class="bi fs-5" [ngClass]="noti.data.icono || 'bi-info-circle-fill'"></i>
+                        </div>
+                        
+                        <div class="w-100">
+                            <h6 class="mb-1 small fw-bold text-dark">
+                                {{ noti.data.titulo || 'Nuevo Evento' }}
+                            </h6>
+                            <p class="mb-1 small text-muted lh-sm">
+                                {{ noti.data.mensaje }}
+                            </p>
+                            <small class="text-muted" style="font-size: 0.7rem;">
+                                {{ noti.created_at | date:'MMM d, h:mm a' }}
+                            </small>
+                        </div>
+                    </ng-template>
+
+                </div>
+            </button>
+
+            <div *ngIf="notifications.length === 0" class="text-center p-5 text-muted">
+                <i class="bi bi-bell-slash fs-1 d-block mb-3 text-secondary opacity-50"></i>
+                <small>No tienes notificaciones nuevas</small>
+            </div>
+
+        </div>
+    </div>
+
+</div>

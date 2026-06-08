@@ -1,0 +1,17 @@
+.table tbody tr:hover {
+    background-color: #f8f9ff !important;
+    transform: scale(1.002);
+    box-shadow: inset 4px 0 0 #0d6efd;
+}
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+.extra-small {
+    font-size: 0.75rem;
+}
+.small-8 {
+    font-size: 0.8rem;
+}
+.ls-1 {
+    letter-spacing: 1px;
+}

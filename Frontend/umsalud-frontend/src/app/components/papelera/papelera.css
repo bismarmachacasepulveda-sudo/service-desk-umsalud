@@ -1,0 +1,36 @@
+.nav-pills .nav-link {
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+
+.nav-pills .nav-link.active {
+    background-color: #dc3545 !important; /* Rojo Danger institucional */
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.25);
+}
+
+.transition-all {
+    transition: all 0.2s ease-in-out;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(0, 51, 102, 0.02) !important; /* Un toque de azul muy leve */
+    transform: scale(1.002);
+}
+
+.btn-outline-success:hover {
+    box-shadow: 0 4px 10px rgba(25, 135, 84, 0.2);
+}
+
+.border-dashed {
+    border-style: dashed !important;
+}
+
+/* Efecto para los avatares */
+.avatar-sm {
+    transition: transform 0.2s;
+}
+
+tr:hover .avatar-sm {
+    transform: scale(1.1);
+}

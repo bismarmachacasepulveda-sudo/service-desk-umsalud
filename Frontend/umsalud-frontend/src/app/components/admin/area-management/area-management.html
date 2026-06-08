@@ -1,0 +1,195 @@
+<div class="container mt-4 mb-5">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-sm border-bottom border-5" style="border-bottom-color: #003366 !important;">
+    <div>
+        <h3 class="fw-bold mb-1" style="color: #003366;">
+            <i class="bi bi-geo-alt-fill me-2"></i>
+            Gestión de Áreas
+        </h3>
+        <p class="text-muted mb-0 small">Administración de oficinas, pisos y departamentos de la facultad.</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+         <button class="btn btn-outline-secondary btn-sm rounded-circle" (click)="loadAreas()" title="Actualizar lista">
+            <i class="bi bi-arrow-clockwise"></i>
+        </button>
+    </div>
+</div>
+
+    <div *ngIf="successMessage" class="alert alert-success border-0 shadow-sm rounded-3 d-flex align-items-center animate__animated animate__fadeIn mb-4">
+        <i class="bi bi-check-circle-fill fs-4 me-3 text-success"></i> 
+        <div>
+            <h6 class="fw-bold mb-0">¡Operación Exitosa!</h6>
+            <span class="small">{{ successMessage }}</span>
+        </div>
+    </div>
+    
+    <div *ngIf="errorMessage" class="alert alert-danger border-0 shadow-sm rounded-3 d-flex align-items-center animate__animated animate__shakeX mb-4">
+        <i class="bi bi-exclamation-octagon-fill fs-4 me-3 text-danger"></i>
+        <div>
+            <h6 class="fw-bold mb-0">Ha ocurrido un error</h6>
+            <span class="small">{{ errorMessage }}</span>
+        </div>
+    </div>
+
+    <div *ngIf="!esAdmin && !isLoading" class="alert alert-light border shadow-sm rounded-3 d-flex align-items-center text-muted">
+        <i class="bi bi-shield-lock fs-3 me-3 opacity-50"></i>
+        <div>
+            <h6 class="fw-bold mb-0 text-dark">Modo Lectura</h6>
+            <span class="small">No tienes permisos para modificar la estructura de áreas.</span>
+        </div>
+    </div>
+
+    <div class="row mt-3 g-4">
+        
+        <div class="col-lg-4" *ngIf="esAdmin">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden sticky-top" style="top: 20px; z-index: 10;">
+                <div class="card-header bg-primary-ums text-white py-3">
+                    <h6 class="mb-0 fw-bold"><i class="bi bi-plus-lg me-2"></i> Registrar Nueva Área</h6>
+                </div>
+                <div class="card-body p-4 bg-white">
+                    <form (ngSubmit)="createArea()">
+                        
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase ms-1">Nombre Oficial</label>
+                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-light border-0 text-secondary"><i class="bi bi-tag"></i></span>
+                                <input type="text" class="form-control bg-light border-0 fw-bold text-dark ps-2 py-2" 
+                                       [(ngModel)]="newAreaName" name="newAreaName" 
+                                       required placeholder="Ej: Recursos Humanos" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold text-muted text-uppercase ms-1">Ubicación / Referencia</label>
+                            <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                                <span class="input-group-text bg-light border-0 text-secondary"><i class="bi bi-pin-map"></i></span>
+                                <input type="text" class="form-control bg-light border-0 ps-2 py-2" 
+                                       [(ngModel)]="newAreaDesc" name="newAreaDesc" 
+                                       placeholder="Ej: Edificio A, Piso 2">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-ums w-100 py-2 rounded-3 fw-bold shadow-md transition-transform" 
+                                [disabled]="isCreating || !newAreaName">
+                            <span *ngIf="isCreating" class="spinner-border spinner-border-sm me-2"></span>
+                            <span *ngIf="!isCreating">Guardar Área</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div [ngClass]="esAdmin ? 'col-lg-8' : 'col-12'">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">Directorio de Áreas</h6>
+                    </div>
+                    <span class="badge bg-light text-dark border px-3 py-2 rounded-pill">{{ areas.length }} áreas</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead class="bg-light text-uppercase text-secondary small">
+                            <tr>
+                                <th class="ps-4 py-3 fw-bold border-0" style="width: 5%;" *ngIf="esAdmin">Estado</th>
+                                <th class="py-3 fw-bold border-0" style="width: 40%;">Dependencia</th>
+                                <th class="py-3 fw-bold border-0" style="width: 30%;">Auditoría</th>
+                                <th class="pe-4 py-3 text-end fw-bold border-0" *ngIf="esAdmin">Control</th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            <tr *ngFor="let area of areas" class="position-relative transition-hover">
+                                
+                                <td class="ps-4 border-bottom-0" *ngIf="esAdmin">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input shadow-none cursor-pointer" type="checkbox" 
+                                               [checked]="area.active" 
+                                               (change)="toggleActive(area)"
+                                               style="width: 2.2em; height: 1.1em;">
+                                    </div>
+                                </td>
+
+                                <td class="border-bottom-0">
+                                    <div *ngIf="!editingArea || editingArea.id !== area.id">
+                                        <div class="fw-bold text-dark mb-0 d-flex align-items-center">
+                                            {{ area.name }}
+                                            <span *ngIf="!area.active" class="badge bg-danger-subtle text-danger ms-2 rounded-pill" style="font-size: 0.55rem;">INACTIVO</span>
+                                        </div>
+                                        <div class="small text-muted d-flex align-items-center mt-1">
+                                            <i class="bi bi-geo-alt me-1 opacity-50" style="font-size: 0.8rem;"></i>
+                                            <span class="text-truncate" style="max-width: 250px;">{{ area.description || '---' }}</span>
+                                        </div>
+                                    </div>
+
+                                    <div *ngIf="editingArea && editingArea.id === area.id" class="animate__animated animate__fadeIn">
+                                        <input type="text" class="form-control form-control-sm mb-1 fw-bold border-primary shadow-sm" 
+                                               [(ngModel)]="editingArea.name" placeholder="Nombre" autoFocus>
+                                        <input type="text" class="form-control form-control-sm text-muted bg-light" 
+                                               [(ngModel)]="editingArea.description" placeholder="Ubicación">
+                                    </div>
+                                </td>
+
+                                <td class="border-bottom-0">
+                                    <div class="d-flex align-items-center" *ngIf="area.creator">
+                                        <div class="avatar-sm bg-gradient-primary text-white rounded-circle me-2 d-flex align-items-center justify-content-center fw-bold shadow-sm" 
+                                             style="width: 32px; height: 32px; font-size: 0.8rem; background: linear-gradient(135deg, #003366, #0056b3);">
+                                            {{ area.creator.name.charAt(0) | uppercase }}
+                                        </div>
+                                        <div class="d-flex flex-column" style="line-height: 1.1;">
+                                            <span class="small fw-bold text-dark">{{ area.creator.name }}</span>
+                                            <span class="text-muted" style="font-size: 0.65rem;">{{ area.created_at | date:'dd MMM yyyy' }}</span>
+                                        </div>
+                                    </div>
+                                    <span *ngIf="!area.creator" class="badge bg-light text-muted border fw-normal">
+                                        <i class="bi bi-hdd-rack me-1"></i> Sistema
+                                    </span>
+                                </td>
+
+                                <td class="pe-4 text-end border-bottom-0" *ngIf="esAdmin">
+                                    <div *ngIf="!editingArea || editingArea.id !== area.id" class="btn-group shadow-sm rounded-3 opacity-hover">
+                                        <button class="btn btn-sm btn-white border-0 text-primary-ums bg-light-hover" (click)="editArea(area)" title="Editar">
+                                            <i class="bi bi-pencil-square fs-6"></i>
+                                        </button>
+                                        <div class="vr bg-secondary opacity-25"></div>
+                                        <button class="btn btn-sm btn-white border-0 text-danger bg-light-hover" (click)="deleteArea(area.id)" title="Mover a papelera">
+                                            <i class="bi bi-trash3 fs-6"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="d-flex gap-2 justify-content-end" *ngIf="editingArea && editingArea.id === area.id">
+                                        <button class="btn btn-success btn-sm shadow-sm" (click)="saveEdit()" [disabled]="isUpdating">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                        <button class="btn btn-outline-secondary btn-sm shadow-sm border-0 bg-light" (click)="editingArea = null">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <tr *ngIf="isLoading">
+                                <td colspan="4" class="text-center py-5">
+                                    <div class="spinner-border text-primary-ums opacity-50" role="status"></div>
+                                </td>
+                            </tr>
+
+                            <tr *ngIf="areas.length === 0 && !isLoading">
+                                <td colspan="4" class="text-center py-5">
+                                    <div class="mb-3">
+                                        <div class="bg-light rounded-circle d-inline-flex p-4 border border-dashed">
+                                            <i class="bi bi-building-add text-muted opacity-50 display-6"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="text-muted fw-bold">Base de datos vacía</h6>
+                                    <p class="small text-muted mb-0">No se han registrado áreas o dependencias.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

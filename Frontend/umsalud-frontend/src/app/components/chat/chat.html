@@ -1,0 +1,141 @@
+<div class="card-umsalud-pro">
+    
+    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0 fw-bold text-dark">
+            <i class="bi bi-chat-left-text-fill text-primary me-2"></i> Seguimiento del Caso
+        </h6>
+<small class="text-success animate__animated animate__fadeIn" *ngIf="usuariosOnline.length > 1">
+            <i class="bi bi-eye-fill me-1"></i> {{ usuariosOnline.length }} personas viendo este caso
+        </small>
+    </div>
+
+    <div class="card-body chat-box bg-light flex-grow-1" #scrollMe style="overflow-y: auto; background-image: url('assets/chat-bg.png');">
+        
+        <div *ngIf="cargando && mensajes.length === 0" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="text-muted mt-2 small">Sincronizando mensajes...</p>
+        </div>
+
+        <div *ngFor="let msg of mensajes; let i = index">
+            
+            <div class="text-center my-4" *ngIf="i === 0 || (mensajes[i-1].created_at | date:'yyyy-MM-dd') !== (msg.created_at | date:'yyyy-MM-dd')">
+                <span class="badge rounded-pill bg-white text-muted shadow-sm border px-3 py-2" style="font-size: 0.75rem;">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    {{ msg.created_at | date:'fullDate' }}
+                </span>
+            </div>
+
+            <div *ngIf="msg.type === 'system'" class="d-flex justify-content-center mb-3">
+                <div class="bg-info bg-opacity-10 text-info border border-info border-opacity-25 rounded-pill px-3 py-1 small fw-bold">
+                    <i class="bi bi-info-circle-fill me-1"></i> {{ msg.message }}
+                </div>
+            </div>
+
+            <div *ngIf="msg.type !== 'system'" 
+                 class="d-flex mb-3 animate__animated animate__fadeInUp animate__faster" 
+                 [ngClass]="{'justify-content-end': msg.user_id === usuarioActualId, 'justify-content-start': msg.user_id !== usuarioActualId}">
+                
+                <div class="d-flex flex-column" [ngClass]="{'align-items-end': msg.user_id === usuarioActualId, 'align-items-start': msg.user_id !== usuarioActualId}" style="max-width: 80%;">
+                    
+                    <div *ngIf="msg.user_id !== usuarioActualId" class="mb-1 ps-2">
+                        <span class="small fw-bold" [ngClass]="msg.user?.role === 'usuario' ? 'text-primary' : 'text-danger'">
+                            {{ msg.user?.name }}
+                        </span>
+                        <span class="ms-1 badge bg-light text-muted border-0" style="font-size: 0.55rem;">
+                            {{ msg.user?.role | uppercase }}
+                        </span>
+                    </div>
+
+                    <div class="msg-bubble position-relative shadow-sm" 
+                         [ngClass]="{
+                            'bg-primary text-white my-msg': msg.user_id === usuarioActualId, 
+                            'bg-white text-dark other-msg': msg.user_id !== usuarioActualId
+                         }"
+                         [style.opacity]="msg.esTemporal ? '0.7' : '1'">
+                        
+                        <div *ngIf="msg.ruta_archivo" class="mb-2 attachment-container">
+                            
+                            <div *ngIf="msg.ruta_archivo.match('\\.(jpeg|jpg|png|gif)$') || msg.esImagenLocal">
+                                <img [src]="msg.esImagenLocal ? msg.ruta_archivo : 'http://192.168.1.50:8000/storage/' + msg.ruta_archivo" 
+                                     class="img-fluid rounded bg-white shadow-sm" 
+                                     style="max-height: 250px; cursor: zoom-in;"
+                                     alt="Adjunto">
+                                
+                                <div *ngIf="msg.esTemporal" class="position-absolute top-50 start-50 translate-middle">
+                                    <div class="spinner-border spinner-border-sm text-light" role="status"></div>
+                                </div>
+                            </div>
+
+                            <div *ngIf="!msg.ruta_archivo.match('\\.(jpeg|jpg|png|gif)$') && !msg.esImagenLocal">
+                                <a [href]="'http://192.168.1.50:8000/storage/' + msg.ruta_archivo" 
+                                   target="_blank" 
+                                   class="btn btn-sm d-flex align-items-center gap-2 border-0 bg-black bg-opacity-10 rounded-3 p-2 text-reset text-decoration-none">
+                                     <i class="bi bi-file-earmark-arrow-down-fill fs-4"></i>
+                                     <div class="text-start overflow-hidden">
+                                         <div class="fw-bold text-truncate" style="max-width: 140px;">{{ msg.nombre_original }}</div>
+                                         <small class="opacity-75">Click para descargar</small>
+                                     </div>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="msg-text" style="white-space: pre-wrap; line-height: 1.4;">{{ msg.message }}</div>
+                        
+                        <div class="msg-time text-end mt-1 d-flex justify-content-end align-items-center gap-1" 
+                             [ngClass]="{'text-white-50': msg.user_id === usuarioActualId, 'text-muted': msg.user_id !== usuarioActualId}"
+                             style="font-size: 0.7rem;">
+                            
+                            {{ msg.created_at | date:'HH:mm' }}
+
+                            <ng-container *ngIf="msg.user_id === usuarioActualId">
+                                <i *ngIf="msg.esTemporal" class="bi bi-clock"></i> <i *ngIf="msg.error" class="bi bi-exclamation-circle-fill text-danger"></i> <i *ngIf="!msg.esTemporal && !msg.error" class="bi bi-check2-all"></i> </ng-container>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-footer bg-white border-top p-3">
+        
+        <div *ngIf="archivoSeleccionado" class="mb-2 p-2 bg-primary bg-opacity-10 border border-primary border-dashed rounded d-flex justify-content-between align-items-center animate__animated animate__fadeIn">
+            <span class="small fw-bold text-primary">
+                <i class="bi bi-paperclip me-1"></i> {{ archivoSeleccionado.name }} 
+                <span class="badge bg-primary ms-1 opacity-75">{{ (archivoSeleccionado.size / 1024 / 1024).toFixed(2) }} MB</span>
+            </span>
+            <button type="button" class="btn-close btn-close-white bg-danger p-1 rounded-circle" (click)="limpiarArchivo()" style="font-size: 0.5rem;"></button>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-danger py-2 mb-2 border-0 shadow-sm" style="font-size: 0.8rem;">
+            <i class="bi bi-exclamation-octagon-fill me-2"></i> {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="enviarMensaje()" class="d-flex gap-2 align-items-end">
+            
+            <input type="file" id="inputArchivo" (change)="alSeleccionarArchivo($event)" hidden>
+            
+            <button type="button" class="btn btn-light border-0 shadow-sm text-primary rounded-circle" 
+                    (click)="activarInputArchivo()" style="width: 45px; height: 45px;">
+                <i class="bi bi-plus-lg fs-5"></i>
+            </button>
+
+            <div class="flex-grow-1 position-relative">
+                <textarea 
+                    class="form-control border-0 bg-light shadow-none" 
+                    placeholder="Escribe un mensaje..." 
+                    [(ngModel)]="nuevoMensaje" 
+                    name="mensaje"
+                    rows="1"
+                    style="border-radius: 20px; padding-left: 15px; padding-right: 15px; resize: none;"
+                    (keydown.enter)="$event.preventDefault(); enviarMensaje()"
+                ></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary rounded-circle d-flex align-items-center justify-content-center shadow" 
+                    [disabled]="(!nuevoMensaje.trim() && !archivoSeleccionado)"
+                    style="width: 45px; height: 45px;">
+                <i class="bi bi-send-fill"></i>
+            </button>
+        </form>
+    </div>
+</div>

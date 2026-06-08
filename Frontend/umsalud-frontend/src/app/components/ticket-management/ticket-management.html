@@ -1,0 +1,387 @@
+<div class="container mt-4 mb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-sm border-bottom border-3" style="border-bottom-color: #003366 !important;">
+        <div>
+            <h3 class="fw-bold mb-1" style="color: #003366;">
+                <i class="bi bi-ticket-perforated-fill me-2"></i>
+                <span *ngIf="isUserFinal()">Mis Solicitudes</span>
+                <span *ngIf="isTechnicianOrAdmin()">Gestión de Incidencias</span>
+            </h3>
+            <p class="text-muted mb-0 small">Administración y seguimiento de soporte técnico.</p>
+        </div>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show shadow-sm border-0 border-start border-5 border-success" role="alert">
+        <i class="bi bi-check-circle-fill me-2"></i> {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage=''"></button>
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show shadow-sm border-0 border-start border-5 border-danger" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ errorMessage }}
+        <button type="button" class="btn-close" (click)="errorMessage=''"></button>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header text-white py-3 bg-navy">
+                    <h5 class="fw-bold mb-3" style="color: #ffffff;">
+                        {{ isTechnicianOrAdmin() ? 'Registrar Ticket Externo' : 'Nueva Solicitud' }}
+                    </h5>
+                    <!-- <p class="text-white small mb-0">Complete los detalles del problema técnico.</p> -->
+                    </div>
+                    
+                    <div class="card-body pt-2">
+                    <form (ngSubmit)="createTicket()">
+                        
+                        <div class="mb-3" *ngIf="isTechnicianOrAdmin()">
+                            <label class="form-label fw-bold small text-uppercase text-">Usuario Afectado</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0"><i class="bi bi-person"></i></span>
+                                <select class="form-select border-start-0 ps-0" [(ngModel)]="newTicket.user_id" name="user_id" required (change)="onUserSelect()">
+                                    <option [ngValue]="null" disabled>-- Seleccionar --</option>
+                                    <option *ngFor="let user of usersList" [ngValue]="user.id">
+                                        {{ user.name }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" *ngIf="isUserFinal()">
+                            <label class="form-label fw-bold small text-uppercase text-black">Solicitante</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-person-circle"></i></span>
+                                <input type="text" class="form-control bg-white" [ngModel]="currentUser?.name" name="currentUserName" disabled>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-black">Ubicación</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="bi bi-geo-alt"></i></span>
+                                <input type="text" class="form-control bg-light" [value]="getAreaName(newTicket.area_id!)" disabled readonly>
+                            </div>
+                            <div *ngIf="!newTicket.area_id" class="text-danger small mt-1">
+                                <i class="bi bi-info-circle"></i> Sin área asignada.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-black">Asunto</label>
+                            <input type="text" class="form-control" [(ngModel)]="newTicket.subject" name="subject" required placeholder="Ej: Falla de internet">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-black">Descripción</label>
+                            <textarea class="form-control" [(ngModel)]="newTicket.description" name="description" rows="4" required placeholder="Detalles del problema..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-uppercase text-muted">Evidencia (Foto/PDF)</label>
+                            <input type="file" id="fileInputTicket" class="form-control form-control-sm" (change)="onFileSelect($event)" accept="image/*,.pdf,.doc,.docx">
+                        </div>
+
+<div class="row g-2 mb-4">
+                
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold small text-muted">Impacto (Alcance)</label>
+                    <select class="form-select" [(ngModel)]="newTicket.impacto" name="impacto" required>
+                        <option value="" disabled selected>-- Seleccione --</option>
+                        
+                        <option value="individual">
+                            {{ isUserFinal() ? '👤 Individual (Solo a mí)' : '👤 Individual (Un solo usuario afectado)' }}
+                        </option>
+                        
+                        <option value="departamental">
+                            {{ isUserFinal() ? '🏢 Departamental (A mi área)' : '🏢 Departamental (Afecta a todo un sector)' }}
+                        </option>
+                        
+                        <option value="general">
+                            {{ isUserFinal() ? '🚨 General (Toda la facultad)' : '🚨 General (Fallo Masivo / Institucional)' }}
+                        </option>
+                    </select>
+                    <div class="form-text small">Defina el alcance del problema.</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold small text-muted">Urgencia (Criticidad)</label>
+                    <select class="form-select" [(ngModel)]="newTicket.urgencia" name="urgencia" required>
+                        <option value="" disabled selected>-- Seleccione --</option>
+                        
+                        <option value="baja">
+                            {{ isUserFinal() ? '🟢 Baja (Puedo trabajar)' : '🟢 Baja (Operativo / Consulta menor)' }}
+                        </option>
+                        
+                        <option value="media">
+                            {{ isUserFinal() ? '🟡 Media (Trabajo con dificultad)' : '🟡 Media (Degradación del servicio)' }}
+                        </option>
+                        
+                        <option value="alta">
+                            {{ isUserFinal() ? '🔴 Alta (Trabajo detenido)' : '🔴 Alta (Interrupción total del servicio)' }}
+                        </option>
+                    </select>
+                    <div class="form-text small">Nivel de severidad o interrupción.</div>
+                </div>
+
+                <div class="col-12" *ngIf="isAdmin()">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Asignar Técnico (Opcional)</label>
+                    <select class="form-select" [(ngModel)]="newTicket.assigned_to" name="assigned_to">
+                        <option [ngValue]="null">-- Dejar en Bolsa de Trabajo (Sin Asignar) --</option>
+                        <option *ngFor="let tech of techniciansList" [ngValue]="tech.id">{{ tech.name }}</option>
+                    </select>
+                </div>
+            </div>
+        
+<div class="mt-2 text-end" *ngIf="isTechnicianOrAdmin() && newTicket.impacto && newTicket.urgencia">
+    <small class="text-muted me-2">Prioridad Resultante (Preliminar):</small>
+    <span class="badge" [ngClass]="getPriorityClass(calcularPrioridadVisual())">
+        {{ calcularPrioridadVisual() | uppercase }}
+    </span>
+</div>
+
+<div class="alert alert-light border-start border-4 border-info shadow-sm mt-2 mb-3" *ngIf="isTechnicianOrAdmin()">
+    <small class="text-muted">
+        <i class="bi bi-info-circle-fill text-info me-2"></i>
+        <span >El sistema sugiere una prioridad. Puede ajustarla editando el ticket después de crearlo.</span>
+    </small>
+</div>
+                        <button type="submit" class="btn w-100 py-2 fw-bold text-white shadow-sm" 
+                                style="background-color: #003366;" 
+                                [disabled]="isLoading || !newTicket.area_id">
+                            <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                            {{ isLoading ? 'Enviando...' : 'Registrar Ticket' }}
+                        </button>
+                        
+                    </form>
+
+            </div>
+            </div>
+        </div>
+        
+<div class="col-lg-9">
+    <div class="card border-0 shadow-sm h-100 overflow-hidden" style="min-width: 0;" >
+        
+        <div class="card-umsalud-prosn bg-white py-3 px-4 border-bottom">
+            <div class="row align-items-center g-3">
+                <div class="col-md-auto" *ngIf="isTechnicianOrAdmin()">
+                    <div class="form-check form-switch bg-light p-2 rounded border d-flex align-items-center shadow-sm">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="myTicketsSwitch"
+                               [(ngModel)]="filterMyTickets" (change)="applyFilters()" style="cursor: pointer;">
+                        <label class="form-check-label fw-bold text-dark small mb-0" for="myTicketsSwitch" style="cursor: pointer;">
+                            <i class="bi bi-person-badge-fill me-1 text-primary"></i> Mis Tickets
+                        </label>
+                    </div>
+                </div>
+
+                <div class="col-md">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                        <input type="text" class="form-control border-start-0 bg-white" placeholder="Asunto, Usuario, ID..." 
+                               [(ngModel)]="searchText" (input)="applyFilters()">
+                    </div>
+                </div>
+
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm border-0 bg-light fw-bold text-dark shadow-sm" [(ngModel)]="filterStatus" (change)="applyFilters()">
+                        <option value="">Estado: Todos</option>
+                        <option value="abierto">🔴 Abiertos</option>
+                        <option value="en_proceso">🟡 En Proceso</option>
+                        <option value="en_espera">⏳ En Espera</option>
+                        <option value="resuelto">✅ Resueltos</option>
+                        <option value="cerrado">⚫ Cerrados</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm border-0 bg-light fw-bold text-dark shadow-sm" [(ngModel)]="filterPriority" (change)="applyFilters()">
+                        <option value="">Prioridad: Todas</option>
+                        <option value="critica">🔥 Crítica</option>
+                        <option value="alta">⬆️ Alta</option>
+                        <option value="media">➡️ Media</option>
+                        <option value="baja">⬇️ Baja</option>
+                    </select>
+                </div>
+
+                <div class="col-md-auto text-end">
+                    <button class="btn btn-sm btn-light border shadow-sm text-primary" (click)="loadTickets()" title="Actualizar lista">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light text-muted small text-uppercase" >
+                    <tr>
+                        <th class="ps-4" style="width: 80px;">ID</th>
+                        <th style="min-width: 200px;">Asunto</th>
+                        <th *ngIf="canViewUserColumn">Usuario</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-center">Prioridad</th>
+                        <th>Responsable</th>
+                        <th class="text-end pe-4">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let ticket of filteredTickets | paginate: { itemsPerPage: 10, currentPage: p }; trackBy: trackByTicket" 
+                        class="ticket-row"
+                        [ngClass]="{
+                            'ticket-mine': ticket.assigned_to === currentUser?.id,
+                            'ticket-collaborator': ticket.colaborador_id === currentUser?.id
+                        }">
+                        
+                        <td class="ps-2">
+                            <div class="d-flex flex-column gap-1">
+                                <span *ngIf="ticket.assigned_to === currentUser?.id" class="badge bg-primary text-white p-1" style="font-size: 0.55rem;">
+                                    <i class="bi bi-person-fill"></i> MÍO
+                                </span>
+                                <span *ngIf="ticket.colaborador_id === currentUser?.id" class="badge bg-warning text-dark p-1" style="font-size: 0.55rem;">
+                                    <i class="bi bi-people-fill"></i> APOYO
+                                </span>
+                                <span class="fw-bold text-dark">#{{ ticket.id }}</span>
+                            </div>
+                        </td>
+                        
+<td class="py-3">
+    <div class="d-flex align-items-center">
+        <div class="rounded-2 bg-primary bg-opacity-10 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 10px; height: 10px;">
+            <i class="bi bi-ticket-perforated text-primary fs-5"></i>
+        </div>
+        <div class="overflow-hidden">
+            <div class="fw-bold text-dark text-truncate mb-0" 
+                 style="max-width: 200px;" 
+                 [title]="ticket.subject"> 
+                {{ ticket.subject }}
+            </div>
+            <div class="text-muted d-flex align-items-center" style="font-size: 0.75rem;"> 
+                <i class="bi bi-calendar-event me-1"> </i> {{ ticket.created_at | date:'dd MMM, yyyy' }}
+                <span class="mx-2">•</span>
+                <i class="bi bi-clock me-1"></i> {{ ticket.created_at | date:'HH:mm' }}
+            </div>
+        </div>
+    </div>
+</td>
+                        
+<td *ngIf="canViewUserColumn" class="py-3">
+    <div class="d-flex align-items-center">
+        <div class="bg-navy text-white rounded-circle d-flex align-items-center justify-content-center me-3 shadow-sm flex-shrink-0" 
+             style="width: 32px; height: 32px; font-size: 0.8rem; background-color: #001f3f;">
+            {{ ticket.user?.name?.charAt(0) }}
+        </div>
+
+        <div class="d-flex flex-column overflow-hidden">
+            <span class="fw-bold text-dark text-truncate" style="max-width: 150px;" [title]="ticket.user?.name">
+                {{ ticket.user?.name || 'Usuario desconocido' }}
+            </span>
+            
+            <small class="text-secondary d-flex align-items-center mt-1">
+                <i class="bi bi-geo-alt-fill me-1" style="font-size: 0.75rem;"></i>
+                <span class="text-truncate">{{ ticket.area?.name || 'Sin área' }}</span>
+            </small>
+        </div>
+    </div>
+</td>
+                        
+                        <td class="text-center">
+                             <span class="badge rounded-pill border px-2 py-1" 
+                                [ngClass]="{
+                                  'bg-danger-subtle text-danger border-danger': ticket.status === 'abierto',
+                                  'bg-primary-subtle text-primary border-primary': ticket.status === 'en_proceso',
+                                  'bg-warning-subtle text-warning-emphasis border-warning': ticket.status === 'en_espera',
+                                  'bg-success-subtle text-success border-success': ticket.status === 'resuelto',
+                                  'bg-secondary-subtle text-secondary border-secondary': ticket.status === 'cerrado'
+                                }">
+                                {{ (ticket.status === 'en_espera' ? '⏳ ESPERA' : ticket.status.replace('_', ' ')) | uppercase }}
+                              </span>
+                         </td>
+
+                        <td class="text-center">
+                            <span class="badge w-100 py-2" 
+                                [ngClass]="{
+                                    'badge-critica pulse-animation': ticket.priority === 'critica',
+                                    'bg-danger text-white': ticket.priority === 'alta',
+                                    'bg-warning text-dark': ticket.priority === 'media',
+                                    'bg-success text-white': ticket.priority === 'baja'
+                                }">
+                                <i *ngIf="ticket.priority === 'critica'" class="bi bi-fire me-1"></i>
+                                {{ ticket.priority | uppercase }}
+                            </span>
+                        </td>
+
+<td class="align-middle">
+    <div *ngIf="ticket.assigned_user" class="d-flex align-items-center">
+        <div class="avatar-group d-flex">
+            <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold border border-white shadow-sm" 
+                 style="width: 32px; height: 32px; font-size: 0.75rem;" 
+                 [title]="'Responsable: ' + ticket.assigned_user.name">
+                {{ ticket.assigned_user.name | slice:0:1 }}
+            </div>
+            
+            <div *ngIf="ticket.colaborador_id" 
+                 class="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center fw-bold border border-white shadow-sm ms-n2" 
+                 style="width: 32px; height: 32px; font-size: 0.75rem; margin-left: -8px;" 
+                 [title]="'Apoyo: ' + ticket.colaborador?.name">
+                {{ ticket.colaborador?.name | slice:0:1 }}
+            </div>
+        </div>
+
+        <div class="ms-2 lh-1">
+            <div class="fw-bold text-dark mb-0" style="font-size: 0.85rem;">
+                {{ ticket.assigned_user.name }}
+            </div>
+            <small *ngIf="ticket.colaborador" class="text-muted" style="font-size: 0.7rem;">
+                + {{ ticket.colaborador.name}}
+            </small>
+            <small *ngIf="!ticket.colaborador" class="text-muted" style="font-size: 0.7rem;">
+                Agente Titular
+            </small>
+        </div>
+    </div>
+
+    <div *ngIf="!ticket.assigned_user" class="d-flex align-items-center">
+        <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle fw-medium px-2 py-1">
+            <i class="bi bi-clock-history me-1"></i> SIN ASIGNAR
+        </span>
+    </div>
+</td>
+
+                        <td class="text-end pe-4">
+                            <div class="btn-group shadow-sm">
+                                <button class="btn btn-white btn-sm text-primary border" (click)="viewTicket(ticket.id)" title="Ver Detalles">
+                                    <i class="bi bi-eye-fill"></i>
+                                </button>
+                                
+                                <button *ngIf="canTakeTicket && !ticket.assigned_to" 
+                                        class="btn btn-primary btn-sm px-2 fw-bold" 
+                                        style="font-size: 0.7rem;"
+                                        (click)="takeTicket(ticket.id)">
+                                    TOMAR
+                                </button>
+                                
+                                <button *ngIf="canDeleteTicket" class="btn btn-white btn-sm text-danger border" (click)="deleteTicket(ticket.id)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center py-3 px-4">
+                <small class="text-muted d-none d-md-block">Mostrando resultados filtrados</small>
+                <pagination-controls 
+                    class="my-pagination mb-0"
+                    (pageChange)="p = $event" 
+                    previousLabel="Ant." 
+                    nextLabel="Sig."
+                    [autoHide]="true"
+                    [responsive]="true">
+                </pagination-controls>
+            </div>
+        </div>
+    </div>
+</div>
+
+    </div>
+</div>

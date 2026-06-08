@@ -1,0 +1,172 @@
+<div class="container mt-4 position-relative pb-5">
+    
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 p-4 bg-white rounded-3 shadow-lg border-bottom border-4" style="border-bottom-color: #003366 !important;">
+    <div>
+<h3 class="fw-bold mb-1" style="color: #003366;">
+    <i class="bi bi-calendar-check-fill me-2"></i>
+    
+    <span *ngIf="isAdmin === false">Mis Reservas</span>
+    
+    <span *ngIf="isAdmin === true">Gestión de Reservas</span>
+
+    <span *ngIf="isAdmin === null" class="opacity-50">Cargando agenda...</span>
+</h3>
+        <p class="text-muted mb-0 small">
+            Agenda institucional para la programación y uso de aulas, laboratorios y auditorios.
+        </p>
+    </div>
+</div>
+
+    <div class="card p-3 mb-4 border-0 shadow-sm bg-secondary-subtle rounded-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-funnel text-primary"></i></span>
+                    <select class="form-select border-0 bg-light fw-medium" [(ngModel)]="filtroAmbiente" (change)="aplicarFiltros()">
+                        <option [ngValue]="null">📅 Vista General (Todos los Ambientes)</option>
+                        <option *ngFor="let aula of ambientes" [ngValue]="aula.id">
+                            {{ aula.nombre }} — {{ aula.tipo }}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            
+        <div class="col-lg-4">
+            <div class="card p-3 border-0 shadow-sm bg-white rounded-4 h-100">
+                <label class="small fw-bold text-muted text-uppercase mb-2 d-block">Estado de Reservas</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <span class="badge rounded-pill bg-warning text-dark px-3 py-2"><i class="bi bi-circle-fill me-1 small"></i> Pendiente</span>
+                    <span class="badge rounded-pill bg-success px-3 py-2"><i class="bi bi-circle-fill me-1 small"></i> Aprobada</span>
+                    <span class="badge rounded-pill bg-danger px-3 py-2"><i class="bi bi-circle-fill me-1 small"></i> Rechazada</span>
+                    <span class="badge rounded-pill bg-secondary px-3 py-2"><i class="bi bi-circle-fill me-1 small"></i> Ocupado</span>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm p-3 border-5 rounded-4 bg-se calendar-container animate__animated animate__fadeIn">
+        <full-calendar [options]="calendarOptions"></full-calendar>
+    </div>
+
+    <div *ngIf="mostrarModalCrear" class="modal-overlay animate__animated animate__fadeIn">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-2xl border-0 rounded-4 overflow-hidden">
+                <div class="modal-header bg-dark text-white p-4 border-0">
+                    <div>
+                        <h5 class="m-0 fw-bold">Solicitar Ambiente</h5>
+                        <small class="opacity-75">Completa los detalles del evento</small>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" (click)="cerrarModal()"></button>
+                </div>
+                <div class="modal-body p-4 bg-light-subtle">
+                    <form (ngSubmit)="guardarReserva()">
+                        <div class="form-floating mb-3">
+                            <select class="form-select border-0 shadow-sm" [(ngModel)]="nuevaReserva.ambiente_id" name="amb" id="floatAmb" required>
+                                <option [ngValue]="null" disabled>Seleccionar...</option>
+                                <option *ngFor="let a of ambientes" [ngValue]="a.id">
+                                    {{ a.nombre }} (Cap: {{ a.capacidad }})
+                                </option>
+                            </select>
+                            <label for="floatAmb">Ambiente / Aula</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control border-0 shadow-sm" [(ngModel)]="nuevaReserva.motivo" name="mot" id="floatMot" placeholder="Motivo" required>
+                            <label for="floatMot">Motivo o Actividad</label>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control border-0 shadow-sm" [(ngModel)]="nuevaReserva.inicio" name="ini" id="floatIni" required>
+                                    <label for="floatIni">Fecha Inicio</label>
+                                </div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="form-floating">
+                                    <input type="datetime-local" class="form-control border-0 shadow-sm" [(ngModel)]="nuevaReserva.fin" name="fin" id="floatFin" required>
+                                    <label for="floatFin">Fecha Fin</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning border-0 small rounded-3 d-flex align-items-center">
+                            <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                            <div>La reserva debe ser confirmada por el administrador antes del evento.</div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold shadow" [disabled]="isLoading || !nuevaReserva.ambiente_id">
+                                <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                Confirmar Solicitud
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="mostrarModalDetalle && reservaSeleccionada" class="modal-overlay animate__animated animate__fadeIn">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content shadow-2xl border-0 rounded-4 overflow-hidden">
+                <div class="modal-header p-4 border-0 d-flex justify-content-between align-items-center" 
+                     [ngClass]="{
+                        'bg-warning': reservaSeleccionada.estado === 'pendiente', 
+                        'bg-success text-white': reservaSeleccionada.estado === 'aprobada', 
+                        'bg-danger text-white': reservaSeleccionada.estado === 'rechazada'
+                     }">
+                    <div>
+                        <h5 class="m-0 fw-bold">Reserva {{ reservaSeleccionada.estado | titlecase }}</h5>
+                        <small class="opacity-75">ID de control: #{{reservaSeleccionada.id}}</small>
+                    </div>
+                    <button type="button" class="btn-close" [ngClass]="{'btn-close-white': reservaSeleccionada.estado !== 'pendiente'}" (click)="cerrarModal()"></button>
+                </div>
+                
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 fw-bold text-dark">{{ reservaSeleccionada.ambiente?.nombre }}</div>
+                        <div class="text-primary fw-medium">{{ reservaSeleccionada.motivo }}</div>
+                    </div>
+                    
+                    <div class="card border-0 bg-light rounded-4 mb-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-person-circle fs-4 me-3 text-secondary"></i>
+                                <div>
+                                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">Solicitante</div>
+                                    <div class="fw-bold">{{ reservaSeleccionada.user?.name }}</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-3">
+                                <i class="bi bi-clock-history fs-4 me-3 text-secondary"></i>
+                                <div>
+                                    <div class="small text-muted text-uppercase fw-bold" style="font-size: 0.6rem;">Horario Reservado</div>
+                                    <div class="fw-bold">{{ reservaSeleccionada.inicio | date:'dd MMM - HH:mm' }} a {{ reservaSeleccionada.fin | date:'HH:mm' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="reservaSeleccionada.estado === 'rechazada'" class="alert alert-danger border-0 rounded-4">
+                        <h6 class="fw-bold mb-1 small"><i class="bi bi-chat-left-text-fill me-2"></i>Motivo del Rechazo:</h6>
+                        <p class="mb-0 small">{{ reservaSeleccionada.motivo_rechazo || 'No se especificó motivo.' }}</p>
+                    </div>
+
+                    <div *ngIf="isAdmin" class="row g-2 pt-3">
+                        <div class="col-6">
+                            <button *ngIf="reservaSeleccionada.estado === 'pendiente'" class="btn btn-success w-100 fw-bold py-2 shadow-sm" (click)="gestionarReserva('aprobada')">Aprobar</button>
+                        </div>
+                        <div class="col-6">
+                            <button *ngIf="reservaSeleccionada.estado === 'pendiente'" class="btn btn-danger w-100 fw-bold py-2 shadow-sm" (click)="gestionarReserva('rechazada')">Rechazar</button>
+                        </div>
+                        <div class="col-12 mt-2">
+                            <button class="btn btn-light w-100 text-danger border-0 fw-bold" (click)="eliminarOCancelar()"><i class="bi bi-trash3 me-2"></i>Eliminar del sistema</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

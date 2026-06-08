@@ -1,0 +1,16 @@
+/* Prioridad Crítica - Color Guindo / Marrón */
+.bg-critica {
+    background-color: #640000 !important; /* Guindo UMSALUD */
+    color: #ffffff !important;
+    box-shadow: 0 0 10px rgba(100, 0, 0, 0.4);
+}
+
+.pulse-animation {
+    animation: priority-pulse 2s infinite;
+}
+
+@keyframes priority-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}

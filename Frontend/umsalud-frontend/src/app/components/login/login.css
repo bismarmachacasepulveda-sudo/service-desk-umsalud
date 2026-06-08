@@ -1,0 +1,55 @@
+/* 1. Fondo de la página */
+.login-container {
+    min-height: 100vh;
+    /* Degradado sutil azulado */
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 2. La Tarjeta del Formulario */
+.login-card {
+    width: 100%;
+    max-width: 400px; /* Ancho ideal para login */
+    border-radius: 15px; /* Bordes redondeados modernos */
+    background-color: #ffffff;
+}
+
+/* 3. El Logo */
+.login-logo {
+    max-height: 80px; /* Ajusta esto según el tamaño de tu imagen */
+    object-fit: contain;
+}
+
+/* 4. COLORES PERSONALIZADOS (Basados en tu Logo) */
+/* Sobrescribimos las clases de Bootstrap para usar TUS colores */
+
+.text-primary {
+    color: #003366 !important; /* Azul Oscuro Institucional */
+}
+
+.btn-primary {
+    background-color: #0056b3; /* Azul Eléctrico para el botón */
+    border-color: #0056b3;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #003366; /* Se oscurece al pasar el mouse */
+    border-color: #003366;
+}
+
+/* 5. Estilo de la Alerta de Error (Rojo) */
+.alert-custom-danger {
+    background-color: #fdecece8;
+    color: #c62828; /* Rojo fuerte del logo */
+    border: 1px solid #ef9a9a;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* 6. Retoques a los inputs (Campos de texto) */
+.form-control:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25); /* Brillo azul al escribir */
+}
