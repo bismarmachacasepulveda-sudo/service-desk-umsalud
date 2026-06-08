@@ -40,6 +40,43 @@ Motor de mensajería asíncrono desacoplado. Utiliza **Laravel Queues** y un mic
 ### 7. Reportes Estadísticos e Inteligencia de Negocios (M7)
 Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como MTTR) y exporta reportes con validez administrativa mediante DomPDF y Maatwebsite Laravel-Excel.
 
-## ⚙️ Instalación y Despliegue
+## ⚙️ Instalación y Despliegue (Local)
 
-*(En esta sección, deberás agregar los comandos básicos que usarías para levantar el proyecto localmente, por ejemplo: `composer install`, `npm install`, cómo correr las migraciones, y cómo levantar Ollama para la IA).*
+### 1. Preparación de Dependencias
+Ejecuta estos comandos en sus carpetas correspondientes:
+
+# Backend (Laravel)
+cd backend
+cp .env.example .env
+composer install
+php artisan key:generate
+php artisan migrate --seed
+
+# Frontend (Angular)
+cd frontend
+npm install
+
+# Microservicio WhatsApp
+cd whatsapp-api
+npm install
+
+### 2. Ejecución de Servicios
+Debes abrir 6 terminales diferentes y ejecutar cada comando:
+
+# Terminal 1: Servidor Backend
+cd backend && php artisan serve --host=0.0.0.0 --port=8000
+
+# Terminal 2: Cliente Frontend
+cd frontend && ng serve --host 0.0.0.0 --allowed-hosts=all
+
+# Terminal 3: WebSockets
+cd backend && php artisan reverb:start --port=8081
+
+# Terminal 4: Colas
+cd backend && php artisan queue:work
+
+# Terminal 5: API WhatsApp
+cd whatsapp-api && node index.js
+
+# Terminal 6: IA Local
+ollama run gemma3:4b
