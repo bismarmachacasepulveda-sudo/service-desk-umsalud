@@ -53,6 +53,8 @@ Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como M
 | **Papelera** | | |
 | ![Papelera](assets/Papelera.png) | | |
 
+## ⚙️ Instalación y Despliegue (Local)
+
 ### 1. Preparación de Dependencias
 Ejecuta estos comandos en sus carpetas correspondientes:
 
