@@ -1,0 +1,10 @@
+# Marcar dependencias como código de terceros (GitHub las ignorará en la barra)
+vendor/** linguist-vendored=true
+node_modules/** linguist-vendored=true
+
+# Marcar carpetas de compilación como código autogenerado (GitHub las ignorará)
+public/build/** linguist-generated=true
+dist/** linguist-generated=true
+
+# Opcional: Si tienes archivos de plantillas HTML gigantes que distorsionan todo
+*.html linguist-detectable=false
