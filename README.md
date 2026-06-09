@@ -43,11 +43,11 @@ Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como M
 
 | Auditoría | Chatbot | Chat en Vivo |
 | :---: | :---: | :---: |
-| ![Auditoria](assets/Auditoria.png) | ![Chatbot](assets/Chatbot.png) | ![ChatVivo](assets/ChatVivo.png) |
+| ![Login](assets/Login.png) | ![Dashboard](assets/Dashboard.png) | ![Auditoria](assets/Auditoria.png) | ![Chatbot](assets/Chatbot.png) | ![ChatVivo](assets/ChatVivo.png) |
 | **Dashboard** | **Detalles de Ticket** | **Lista de Tickets** |
-| ![Dashboard](assets/Dashboard.png) | ![DetallesTicket](assets/DetallesTicket.png) | ![ListaTickets](assets/ListaTickets.png) |
+| ![DetallesTicket](assets/DetallesTicket.png) | ![ListaTickets](assets/ListaTickets.png) |
 | **Lista de Usuarios** | **Login** | **Notificaciones** |
-| ![ListaUsuarios](assets/ListaUsuarios.png) | ![Login](assets/Login.png) | ![Notificaciones](assets/Notificaciones.png) |
+| ![ListaUsuarios](assets/ListaUsuarios.png) | ![Notificaciones](assets/Notificaciones.png) |
 | **Papelera** | **Reportes** | **Repositorio** |
 | ![Papelera](assets/Papelera.png) | ![Reportes](assets/Reportes.png) | ![Repositorio](assets/Repositorio.png) |
 | **Reservas de Ambientes** | | |
