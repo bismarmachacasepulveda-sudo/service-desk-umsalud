@@ -39,7 +39,12 @@ Motor de mensajería asíncrono desacoplado. Utiliza **Laravel Queues** y un mic
 
 ### 7. Reportes Estadísticos e Inteligencia de Negocios (M7)
 Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como MTTR) y exporta reportes con validez administrativa mediante DomPDF y Maatwebsite Laravel-Excel.
+## 📸 Visualización de la Plataforma
 
+| Dashboard Principal | Chat en Tiempo Real | Asistente IA (Ollama) |
+| :---: | :---: | :---: |
+| ![Dashboard](assets/dashboard.png) | ![Chat](assets/chat.png) | ![IA](assets/ai-bot.png) |
+| Panel de control con métricas clave | Interacción en tiempo real | Inferencia local con gemma3 |
 ## ⚙️ Instalación y Despliegue (Local)
 
 ### 1. Preparación de Dependencias
