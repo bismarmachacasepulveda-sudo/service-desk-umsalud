@@ -43,7 +43,7 @@ Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como M
 
 | Dashboard Principal | Chat en Tiempo Real | Asistente IA (Ollama) |
 | :---: | :---: | :---: |
-| ![Dashboard](assets/dashboard.png) | ![Chat](assets/chat.png) | ![IA](assets/ai-bot.png) |
+| ![Dashboard](assets/Dashboard.png) | ![Chat](assets/chat.png) | ![IA](assets/ai-bot.png) |
 | Panel de control con métricas clave | Interacción en tiempo real | Inferencia local con gemma3 |
 ## ⚙️ Instalación y Despliegue (Local)
 
