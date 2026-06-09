@@ -41,11 +41,17 @@ Motor de mensajería asíncrono desacoplado. Utiliza **Laravel Queues** y un mic
 Dashboards dinámicos para la toma de decisiones. Calcula KPIs técnicos (como MTTR) y exporta reportes con validez administrativa mediante DomPDF y Maatwebsite Laravel-Excel.
 ## 📸 Visualización de la Plataforma
 
-| Dashboard Principal | Chat en Tiempo Real | Asistente IA (Ollama) |
+| Auditoría | Chatbot | Chat en Vivo |
 | :---: | :---: | :---: |
-| ![Dashboard](assets/Dashboard.png) | ![Chat](assets/chat.png) | ![IA](assets/ai-bot.png) |
-| Panel de control con métricas clave | Interacción en tiempo real | Inferencia local con gemma3 |
-## ⚙️ Instalación y Despliegue (Local)
+| ![Auditoria](assets/Auditoria.png) | ![Chatbot](assets/Chatbot.png) | ![ChatVivo](assets/ChatVivo.png) |
+| **Dashboard** | **Detalles de Ticket** | **Lista de Tickets** |
+| ![Dashboard](assets/Dashboard.png) | ![DetallesTicket](assets/DetallesTicket.png) | ![ListaTickets](assets/ListaTickets.png) |
+| **Lista de Usuarios** | **Login** | **Notificaciones** |
+| ![ListaUsuarios](assets/ListaUsuarios.png) | ![Login](assets/Login.png) | ![Notificaciones](assets/Notificaciones.png) |
+| **Papelera** | **Reportes** | **Repositorio** |
+| ![Papelera](assets/Papelera.png) | ![Reportes](assets/Reportes.png) | ![Repositorio](assets/Repositorio.png) |
+| **Reservas de Ambientes** | | |
+| ![Reservas](assets/ReservasAmbientes.png) | | |
 
 ### 1. Preparación de Dependencias
 Ejecuta estos comandos en sus carpetas correspondientes:
