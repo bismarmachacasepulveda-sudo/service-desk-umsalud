@@ -1,4 +1,4 @@
-# 🏥 Service Desk Platform & IT Resource Management - Red UMSALUD
+# Service Desk Platform & IT Resource Management - Red UMSALUD
 
 ![Estado: Finalizado](https://img.shields.io/badge/Estado-Finalizado-success)
 ![Arquitectura: Full-Stack](https://img.shields.io/badge/Arquitectura-Full--Stack-blue)
@@ -7,7 +7,7 @@
 
 Plataforma corporativa integral diseñada para la gestión de incidencias IT, trazabilidad de usuarios y administración de recursos físicos para la Red UMSALUD. Desarrollada bajo una arquitectura modular y escalable, el sistema integra procesamiento en tiempo real, automatización de notificaciones y un motor de Inteligencia Artificial de inferencia local para optimizar flujos de soporte técnico.
 
-## 🚀 Arquitectura y Tecnologías Core
+## Arquitectura y Tecnologías Core
 
 El sistema está estructurado en 7 módulos interconectados, operando bajo un entorno híbrido (Local / Google Cloud) con soporte para túneles SSH.
 
